@@ -1,5 +1,6 @@
 # Cortex Enterprise
 
+
 **AI Data Trust & Insights Platform**
 
 Upload datasets → Analyze quality → Get insights → Browse catalog
