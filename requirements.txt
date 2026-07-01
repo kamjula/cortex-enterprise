@@ -1,0 +1,43 @@
+# ============================================================
+# Cortex Enterprise - Python Dependencies
+# Week 1: Systems Foundation (FastAPI, Auth, Observability)
+# ============================================================
+
+# ── Web Framework ────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+pydantic[email]==2.7.1
+starlette==0.37.2
+
+# ── Authentication ────────────────────────────────────────────
+python-jose[cryptography]==3.3.0   # JWT encode/decode
+passlib[bcrypt]==1.7.4              # Password hashing
+
+# ── Configuration ─────────────────────────────────────────────
+python-dotenv==1.0.1
+
+# ── Testing ───────────────────────────────────────────────────
+pytest==8.2.0
+pytest-asyncio==0.23.7
+httpx==0.27.0                       # TestClient backend for FastAPI
+
+# ── Observability (Week 1 foundation) ────────────────────────
+# structlog==24.1.0                 # Uncomment: advanced structured logging
+
+# ── Week 2 additions (coming soon) ────────────────────────────
+# sqlalchemy==2.0.30
+# asyncpg==0.29.0
+# alembic==1.13.1
+# redis==5.0.4
+
+# ── Week 3 additions (coming soon) ────────────────────────────
+# kafka-python==2.0.2
+# confluent-kafka==2.4.0
+
+# ── Week 4 additions (coming soon) ────────────────────────────
+# boto3==1.34.0
+
+# ── Week 6 additions (AI features) ────────────────────────────
+# openai==1.30.0
+# pgvector==0.2.5
+# langchain==0.2.0
