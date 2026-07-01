@@ -2,82 +2,139 @@
 
 **AI Data Trust & Insights Platform**
 
-Upload datasets → Analyze quality → Get insights → Browse catalog
+Upload datasets → Analyze quality → Get AI insights → Browse catalog
+
+![Week](https://img.shields.io/badge/Week-2%20of%2010-blue)
+![Status](https://img.shields.io/badge/Status-Active%20Development-green)
+![Stack](https://img.shields.io/badge/Stack-FastAPI%20%7C%20React%20%7C%20PostgreSQL-orange)
+
+---
 
 ## Features
-- Dataset Upload with preview
-- Trust Engine (quality analysis)
-- Insight Copilot (AI insights)
-- AI Data Catalog (searchable)
 
-## Tech Stack
-React | FastAPI | PostgreSQL | DuckDB | Great Expectations | Docker
+- Dataset Upload with preview and validation
+- - Trust Engine (data quality analysis with Great Expectations)
+  - - Insight Copilot (AI-powered insights via LLM)
+    - - AI Data Catalog (searchable, filterable dataset registry)
+      - - Analytics Dashboard (real-time metrics and visualizations)
+        - - JWT Authentication and Role-Based Access Control
+         
+          - ---
 
-## Quick Start
-```bash
-docker-compose up -d
-cd backend && pip install -r requirements.txt
-cd ../frontend && npm install && npm start
-```
+          ## Tech Stack
 
-## Documentation
-- [Product Requirements](docs/PRODUCT_REQUIREMENTS.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Tech Stack](docs/TECH_STACK.md)
+          | Layer | Technology |
+          |-------|------------|
+          | Frontend | React + Vite + TypeScript |
+          | Backend | FastAPI + Python 3.11 |
+          | Database | PostgreSQL + SQLAlchemy |
+          | Analytics | DuckDB + Pandas |
+          | Data Quality | Great Expectations |
+          | Auth | JWT + OAuth2 |
+          | Infrastructure | Docker + Docker Compose |
 
-## Week 1 Checklist
-- [x] GitHub repo created (cortex-enterprise)
-- [x] Folder structure setup (backend, frontend, docs)
-- [x] Planning docs committed (requirements, architecture, roadmap, tech stack)
-- [x] docker-compose.yml (PostgreSQL + PgAdmin)
-- [x] backend/requirements.txt (FastAPI, SQLAlchemy, DuckDB stack)
-- [x] backend/app/main.py (FastAPI scaffold)
-- [x] backend/.env.example (DB + JWT config)
-- [ ] Docker running locally (docker ps)
-- [ ] PostgreSQL accessible (localhost:5432)
-- [ ] FastAPI running (localhost:8000/docs)
-- [ ] /health endpoint working
+          ---
 
-## Week 1 File Structure
-```
-cortex-enterprise/
-├── backend/
-│   ├── app/
-│   │   ├── __init__.py
-│   │   └── main.py          ← FastAPI app
-│   ├── requirements.txt     ← Python deps
-│   └── .env.example         ← Config template
-├── frontend/
-│   └── package.json         ← React + Vite
-├── docs/
-│   ├── PRODUCT_REQUIREMENTS.md
-│   ├── ARCHITECTURE.md
-│   ├── ROADMAP.md
-│   └── TECH_STACK.md
-├── docker-compose.yml       ← PostgreSQL + PgAdmin
-├── .gitignore
-├── LICENSE
-└── README.md
-```
+          ## Project Structure
 
-## Run This Week
+          ```
+          cortex-enterprise/
+          ├── backend/
+          │   ├── app/
+          │   │   ├── api/           ← API route handlers
+          │   │   ├── analytics/     ← Analytics Dashboard module
+          │   │   ├── auth/          ← Authentication and JWT
+          │   │   ├── catalog/       ← AI Data Catalog
+          │   │   ├── etl/           ← ETL Pipeline
+          │   │   ├── models/        ← SQLAlchemy ORM models
+          │   │   ├── quality/       ← Data Quality Engine
+          │   │   └── main.py        ← FastAPI entry point
+          │   ├── requirements.txt
+          │   └── .env.example
+          ├── frontend/
+          │   └── package.json
+          ├── docs/
+          │   ├── PRODUCT_REQUIREMENTS.md
+          │   ├── ARCHITECTURE.md
+          │   ├── ROADMAP.md
+          │   └── TECH_STACK.md
+          ├── tests/
+          ├── docker-compose.yml
+          └── README.md
+          ```
 
-**Step 1 - Start PostgreSQL:**
-```bash
-docker-compose up -d
-# Visit PgAdmin: http://localhost:5050
-# Email: admin@cortex.local / Password: admin
-```
+          ---
 
-**Step 2 - Run FastAPI:**
-```bash
-cd backend
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-# Visit: http://localhost:8000/docs
-```
+          ## Quick Start
 
-**Status: Week 1 Complete - Ready for Week 2**
+          ```bash
+          # 1. Start PostgreSQL
+          docker-compose up -d
+
+          # 2. Run Backend
+          cd backend
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          uvicorn app.main:app --reload --port 8000
+          # API Docs: http://localhost:8000/docs
+
+          # 3. Run Frontend
+          cd frontend
+          npm install && npm start
+          # App: http://localhost:3000
+          ```
+
+          ---
+
+          ## 10-Week Roadmap
+
+          | Week | Focus | Status |
+          |------|-------|--------|
+          | 1 | Requirements + Architecture | Done |
+          | 2 | Database Schema + Backend Setup + Module Scaffolds | Done |
+          | 3 | ETL Pipeline | Next |
+          | 4 | AI Data Catalog | Planned |
+          | 5 | Data Quality Engine | Planned |
+          | 6 | AI Analytics | Planned |
+          | 7 | Dashboard | Planned |
+          | 8 | Authentication | Planned |
+          | 9 | Testing | Planned |
+          | 10 | Deployment + Documentation | Planned |
+
+          ---
+
+          ## Week 2 Progress
+
+          **Completed:**
+          - Module scaffolds: etl, catalog, quality, analytics, auth, api, models
+          - - Backend folder structure finalized
+            - - tests/ directory created
+              - - Docker + PostgreSQL running locally
+                - - FastAPI running at localhost:8000/docs
+                 
+                  - **Next - Week 3 - ETL Pipeline:**
+                  - - CSV/JSON/Parquet ingestion
+                    - - DuckDB analytics engine integration
+                      - - Data profiling
+                        - - Upload API endpoint
+                         
+                          - ---
+
+                          ## Documentation
+
+                          - [Product Requirements](docs/PRODUCT_REQUIREMENTS.md)
+                          - - [Architecture](docs/ARCHITECTURE.md)
+                            - - [Roadmap](docs/ROADMAP.md)
+                              - - [Tech Stack](docs/TECH_STACK.md)
+                               
+                                - ---
+
+                                ## Contributing
+
+                                This project is part of a 10-week build sprint. Issues and PRs welcome!
+
+                                ---
+
+                                *Week 2 of 10 - Cortex Enterprise*
+                                
