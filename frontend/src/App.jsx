@@ -1,5 +1,13 @@
+import { useState } from "react";
+
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
+import SearchBar from "./components/SearchBar";
+import StatsCards from "./components/StatsCards";
+import Datasets from "./components/Datasets";
+import DataQuality from "./components/DataQuality";
+import Pipelines from "./components/Pipelines";
+import AICopilot from "./components/AICopilot";
 
 import {
   BarChart,
@@ -11,6 +19,8 @@ import {
 } from "recharts";
 
 function App() {
+  const [activePage, setActivePage] = useState("Dashboard");
+
   const stats = [
     { title: "Total Datasets", value: "1,248", change: "+12.5%" },
     { title: "Active Pipelines", value: "320", change: "+8.2%" },
@@ -30,61 +40,97 @@ function App() {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
-      <Sidebar activePage="Dashboard" onNavigate={(page) => console.log(page)} />
+      <Sidebar
+        activePage={activePage}
+        onNavigate={setActivePage}
+      />
 
-      <main style={{ flex: 1, background: "#f8fafc", padding: 32 }}>
+      <main
+        style={{
+          flex: 1,
+          background: "#f8fafc",
+          padding: 32,
+        }}
+      >
         <Header />
+        <SearchBar />
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 20,
-            marginTop: 30,
-          }}
-        >
-          {stats.map((item) => (
+        {activePage === "Dashboard" && (
+          <>
+            <StatsCards stats={stats} />
+
             <div
-              key={item.title}
-              style={{ background: "white", padding: 24, borderRadius: 16 }}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "2fr 1fr",
+                gap: 20,
+                marginTop: 28,
+              }}
             >
-              <p style={{ color: "#64748b" }}>{item.title}</p>
-              <h2 style={{ color: "#111827" }}>{item.value}</h2>
-              <p style={{ color: "#16a34a" }}>{item.change}</p>
-            </div>
-          ))}
-        </div>
+              <div
+                style={{
+                  background: "white",
+                  padding: 24,
+                  borderRadius: 16,
+                }}
+              >
+                <h3>Pipeline Activity</h3>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "2fr 1fr",
-            gap: 20,
-            marginTop: 28,
-          }}
-        >
-          <div style={{ background: "white", padding: 24, borderRadius: 16 }}>
-            <h3 style={{ color: "#111827" }}>Pipeline Activity</h3>
-            <div style={{ width: "100%", height: 220 }}>
-              <ResponsiveContainer>
-                <BarChart data={pipelineData}>
-                  <XAxis dataKey="day" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="runs" fill="#2563eb" radius={[8, 8, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
+                <div style={{ width: "100%", height: 250 }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={pipelineData}>
+                      <XAxis dataKey="day" />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar
+                        dataKey="runs"
+                        fill="#2563eb"
+                        radius={[8, 8, 0, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
 
-          <div style={{ background: "white", padding: 24, borderRadius: 16 }}>
-            <h3 style={{ color: "#111827" }}>AI Copilot</h3>
-            <p style={{ color: "#64748b" }}>
-              Ask CortexOS questions about datasets, pipeline failures, and
-              quality issues.
-            </p>
-          </div>
-        </div>
+              <div
+                style={{
+                  background: "white",
+                  padding: 24,
+                  borderRadius: 16,
+                }}
+              >
+                <h3>AI Copilot</h3>
+                <p>
+                  Ask CortexOS questions about datasets,
+                  pipeline failures, and quality issues.
+                </p>
+              </div>
+            </div>
+          </>
+        )}
+
+        {activePage === "Datasets" && <Datasets />}
+        {activePage === "Pipelines" && <Pipelines />}
+        {activePage === "Data Quality" && <DataQuality />}
+        {activePage === "AI Copilot" && <AICopilot />}
+
+        {activePage === "Alerts" && (
+          <h2 style={{ marginTop: 30 }}>
+            Alerts Page Coming Soon
+          </h2>
+        )}
+
+        {activePage === "Users" && (
+          <h2 style={{ marginTop: 30 }}>
+            Users Page Coming Soon
+          </h2>
+        )}
+
+        {activePage === "Settings" && (
+          <h2 style={{ marginTop: 30 }}>
+            Settings Page Coming Soon
+          </h2>
+        )}
       </main>
     </div>
   );

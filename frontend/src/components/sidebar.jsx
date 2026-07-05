@@ -11,7 +11,7 @@ const menuItems = [
   "Settings",
 ];
 
-function Sidebar({ activePage = "Dashboard", onNavigate = () => {} }) {
+function Sidebar({ activePage, onNavigate }) {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">CortexOS</div>
@@ -19,12 +19,11 @@ function Sidebar({ activePage = "Dashboard", onNavigate = () => {} }) {
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
           <button
+            type="button"
             key={item}
-            className={
-              activePage === item
-                ? "sidebar-nav-item active"
-                : "sidebar-nav-item"
-            }
+            className={`sidebar-nav-item ${
+              activePage === item ? "active" : ""
+            }`}
             onClick={() => onNavigate(item)}
           >
             {item}
