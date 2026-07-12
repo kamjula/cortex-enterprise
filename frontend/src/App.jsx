@@ -101,7 +101,8 @@ function App() {
         }}
       >
         <Header />
-        <SearchBar />
+
+        {activePage === "Datasets" && <SearchBar />}
 
         {activePage === "Dashboard" && (
           <>

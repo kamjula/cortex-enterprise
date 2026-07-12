@@ -11,15 +11,16 @@ function DataQuality() {
       setLoading(true);
       setError("");
 
-      const res = await fetch("http://localhost:5050/data-quality");
+      const response = await fetch("http://localhost:5050/data-quality");
 
-      if (!res.ok) {
+      if (!response.ok) {
         throw new Error("Failed to load data quality checks");
       }
 
-      const data = await res.json();
-      setChecks(data);
+      const data = await response.json();
+      setChecks(Array.isArray(data) ? data : []);
     } catch (err) {
+      console.error("Data Quality Fetch Error:", err);
       setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -31,40 +32,51 @@ function DataQuality() {
   }, []);
 
   const filteredChecks = useMemo(() => {
-    return checks.filter((item) =>
-      item.dataset_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const query = searchTerm.trim().toLowerCase();
+
+    if (!query) {
+      return checks;
+    }
+
+    return checks.filter((item) => {
+      const datasetName = String(item.dataset_name || "").toLowerCase();
+      const status = String(item.status || "").toLowerCase();
+
+      return datasetName.includes(query) || status.includes(query);
+    });
   }, [checks, searchTerm]);
 
   const getStatusStyle = (status) => {
-    const base = {
+    const baseStyle = {
       display: "inline-block",
+      minWidth: "72px",
       padding: "6px 12px",
       borderRadius: "999px",
+      textAlign: "center",
       fontSize: "12px",
-      fontWeight: 600,
+      fontWeight: 700,
     };
 
     if (status === "Healthy") {
       return {
-        ...base,
-        background: "#dcfce7",
+        ...baseStyle,
+        background: "#DCFCE7",
         color: "#166534",
       };
     }
 
     if (status === "Warning") {
       return {
-        ...base,
-        background: "#fef3c7",
-        color: "#92400e",
+        ...baseStyle,
+        background: "#FEF3C7",
+        color: "#92400E",
       };
     }
 
     return {
-      ...base,
-      background: "#fee2e2",
-      color: "#991b1b",
+      ...baseStyle,
+      background: "#FEE2E2",
+      color: "#991B1B",
     };
   };
 
@@ -81,7 +93,10 @@ function DataQuality() {
         <button
           type="button"
           onClick={loadQualityChecks}
-          style={styles.refreshButton}
+          style={{
+            ...styles.refreshButton,
+            opacity: loading ? 0.7 : 1,
+          }}
           disabled={loading}
         >
           {loading ? "Refreshing..." : "Refresh"}
@@ -91,20 +106,23 @@ function DataQuality() {
       <div style={styles.toolbar}>
         <input
           type="text"
-          placeholder="Search dataset..."
+          placeholder="Search by dataset or status..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(event) => setSearchTerm(event.target.value)}
           style={styles.searchInput}
         />
       </div>
 
       {loading && (
-        <div style={styles.stateCard}>Loading quality checks...</div>
+        <div style={styles.stateCard}>
+          Loading quality checks...
+        </div>
       )}
 
       {!loading && error && (
         <div style={styles.errorCard}>
-          <p style={{ margin: 0 }}>{error}</p>
+          <p style={styles.errorText}>{error}</p>
+
           <button
             type="button"
             onClick={loadQualityChecks}
@@ -133,11 +151,26 @@ function DataQuality() {
               <tbody>
                 {filteredChecks.map((item) => (
                   <tr key={item.id}>
-                    <td style={styles.tdStrong}>{item.dataset_name}</td>
-                    <td style={styles.td}>{Number(item.score).toFixed(2)}%</td>
-                    <td style={styles.td}>{item.missing_values}</td>
-                    <td style={styles.td}>{item.duplicate_records}</td>
-                    <td style={styles.td}>{item.failed_rules}</td>
+                    <td style={styles.tdStrong}>
+                      {item.dataset_name}
+                    </td>
+
+                    <td style={styles.td}>
+                      {Number(item.score || 0).toFixed(2)}%
+                    </td>
+
+                    <td style={styles.td}>
+                      {item.missing_values}
+                    </td>
+
+                    <td style={styles.td}>
+                      {item.duplicate_records}
+                    </td>
+
+                    <td style={styles.td}>
+                      {item.failed_rules}
+                    </td>
+
                     <td style={styles.td}>
                       <span style={getStatusStyle(item.status)}>
                         {item.status}
@@ -151,7 +184,7 @@ function DataQuality() {
 
           {filteredChecks.length === 0 ? (
             <div style={styles.emptyState}>
-              No quality checks found for “{searchTerm}”.
+              No quality checks found.
             </div>
           ) : (
             <div style={styles.footer}>
@@ -168,6 +201,7 @@ const styles = {
   page: {
     padding: "8px 0 32px",
   },
+
   header: {
     display: "flex",
     alignItems: "center",
@@ -175,110 +209,130 @@ const styles = {
     gap: "20px",
     marginBottom: "20px",
   },
+
   title: {
     margin: 0,
     fontSize: "30px",
     color: "#111827",
   },
+
   subtitle: {
     margin: "8px 0 0",
-    color: "#6b7280",
+    color: "#6B7280",
     fontSize: "15px",
   },
+
   refreshButton: {
     border: "none",
     borderRadius: "10px",
-    background: "#2563eb",
-    color: "#ffffff",
+    background: "#2563EB",
+    color: "#FFFFFF",
     padding: "11px 20px",
     fontWeight: 600,
     cursor: "pointer",
   },
+
   toolbar: {
     marginBottom: "18px",
   },
+
   searchInput: {
     width: "100%",
     boxSizing: "border-box",
-    border: "1px solid #d1d5db",
+    border: "1px solid #D1D5DB",
     borderRadius: "10px",
     padding: "13px 16px",
     fontSize: "14px",
     outline: "none",
-    background: "#ffffff",
+    background: "#FFFFFF",
   },
+
   tableCard: {
-    background: "#ffffff",
-    border: "1px solid #e5e7eb",
+    background: "#FFFFFF",
+    border: "1px solid #E5E7EB",
     borderRadius: "14px",
     overflow: "hidden",
     boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
   },
+
   tableWrapper: {
     overflowX: "auto",
   },
+
   table: {
     width: "100%",
-    borderCollapse: "collapse",
     minWidth: "760px",
+    borderCollapse: "collapse",
   },
+
   th: {
-    background: "#2563eb",
-    color: "#ffffff",
+    background: "#2563EB",
+    color: "#FFFFFF",
     padding: "15px 18px",
     textAlign: "left",
     fontSize: "13px",
     fontWeight: 700,
   },
+
   td: {
     padding: "16px 18px",
-    borderBottom: "1px solid #e5e7eb",
-    color: "#4b5563",
+    borderBottom: "1px solid #E5E7EB",
+    color: "#4B5563",
     fontSize: "14px",
   },
+
   tdStrong: {
     padding: "16px 18px",
-    borderBottom: "1px solid #e5e7eb",
+    borderBottom: "1px solid #E5E7EB",
     color: "#111827",
     fontSize: "14px",
     fontWeight: 600,
   },
+
   footer: {
     padding: "14px 18px",
     textAlign: "center",
-    color: "#6b7280",
+    color: "#6B7280",
     fontSize: "13px",
-    background: "#f9fafb",
+    background: "#F9FAFB",
   },
+
   stateCard: {
     padding: "30px",
-    border: "1px solid #e5e7eb",
+    border: "1px solid #E5E7EB",
     borderRadius: "14px",
     textAlign: "center",
-    color: "#6b7280",
-    background: "#ffffff",
+    color: "#6B7280",
+    background: "#FFFFFF",
   },
+
   errorCard: {
     padding: "24px",
-    border: "1px solid #fecaca",
+    border: "1px solid #FECACA",
     borderRadius: "14px",
     textAlign: "center",
-    color: "#991b1b",
-    background: "#fef2f2",
+    background: "#FEF2F2",
   },
+
+  errorText: {
+    margin: 0,
+    color: "#991B1B",
+  },
+
   retryButton: {
     marginTop: "14px",
     border: "none",
     borderRadius: "8px",
     padding: "9px 16px",
-    background: "#dc2626",
-    color: "#ffffff",
+    background: "#DC2626",
+    color: "#FFFFFF",
     cursor: "pointer",
   },
+
   emptyState: {
     padding: "32px",
     textAlign: "center",
-    color: "#6b7280",
+    color: "#6B7280",
   },
 };
 
