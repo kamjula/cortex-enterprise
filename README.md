@@ -4,9 +4,11 @@ CortexOS is an enterprise-style full-stack data platform built with React, Node.
 
 ## Tech Stack
 
-**Frontend:** React 19 (Vite), Recharts, Lucide Icons
-**Backend:** Node.js, Express 5
-**Database:** PostgreSQL
+- Frontend: React 19, Vite, Recharts, Lucide Icons
+
+- Backend: Node.js, Express 5
+
+- Database: PostgreSQL
 
 ## Project Status
 
