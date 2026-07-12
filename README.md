@@ -67,7 +67,21 @@ npm run dev
 
 ## Screenshots
 
-_Add screenshots of the dashboard, datasets view, and other key screens here._
+### Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Data Quality
+
+![Data Quality](screenshots/data-quality.png)
+
+### Pipelines
+
+![Pipelines](screenshots/pipelines.png)
+
+### Alerts
+
+![Alerts](screenshots/alerts.png)
 
 ## License
 
