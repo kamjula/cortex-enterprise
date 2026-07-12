@@ -1,63 +1,197 @@
-function Pipelines() {
-  const pipelines = [
-    { name: "Customer Sync", status: "Running", lastRun: "5 mins ago", duration: "12m", owner: "Data Team" },
-    { name: "Orders ETL", status: "Success", lastRun: "30 mins ago", duration: "8m", owner: "Analytics" },
-    { name: "Inventory Load", status: "Failed", lastRun: "1 hour ago", duration: "3m", owner: "Ops" },
-    { name: "Payments Validation", status: "Success", lastRun: "2 hours ago", duration: "15m", owner: "Finance" },
-  ];
+import { useEffect, useState } from "react";
 
-  const statusColor = (status) => {
-    if (status === "Running") return "#2563eb";
-    if (status === "Success") return "#16a34a";
-    return "#dc2626";
+function StatusBadge({ status }) {
+  const colors = {
+    Success: {
+      background: "#ecfdf3",
+      color: "#047857",
+      border: "#a7f3d0",
+    },
+    Running: {
+      background: "#eff6ff",
+      color: "#2563eb",
+      border: "#bfdbfe",
+    },
+    Failed: {
+      background: "#fef2f2",
+      color: "#dc2626",
+      border: "#fecaca",
+    },
   };
 
+  const style = colors[status] || colors.Running;
+
   return (
-    <div style={{ background: "white", padding: 24, borderRadius: 16, marginTop: 30 }}>
-      <h2>Pipeline Monitoring</h2>
+    <span
+      style={{
+        padding: "6px 10px",
+        borderRadius: 999,
+        fontSize: 12,
+        fontWeight: 700,
+        background: style.background,
+        color: style.color,
+        border: `1px solid ${style.border}`,
+      }}
+    >
+      {status}
+    </span>
+  );
+}
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 20 }}>
-        <thead>
-          <tr style={{ borderBottom: "2px solid #e5e7eb" }}>
-            <th style={{ textAlign: "left", padding: 12 }}>Pipeline</th>
-            <th style={{ textAlign: "left", padding: 12 }}>Status</th>
-            <th style={{ textAlign: "left", padding: 12 }}>Last Run</th>
-            <th style={{ textAlign: "left", padding: 12 }}>Duration</th>
-            <th style={{ textAlign: "left", padding: 12 }}>Owner</th>
-            <th style={{ textAlign: "left", padding: 12 }}>Action</th>
-          </tr>
-        </thead>
+function Pipelines() {
+  const [pipelines, setPipelines] = useState([]);
+  const [search, setSearch] = useState("");
 
-        <tbody>
-          {pipelines.map((item) => (
-            <tr key={item.name} style={{ borderBottom: "1px solid #f1f5f9" }}>
-              <td style={{ padding: 12 }}>{item.name}</td>
-              <td style={{ padding: 12, color: statusColor(item.status), fontWeight: "bold" }}>
-                {item.status}
-              </td>
-              <td style={{ padding: 12 }}>{item.lastRun}</td>
-              <td style={{ padding: 12 }}>{item.duration}</td>
-              <td style={{ padding: 12 }}>{item.owner}</td>
-              <td style={{ padding: 12 }}>
-                <button
-                  style={{
-                    background: "#2563eb",
-                    color: "white",
-                    border: "none",
-                    padding: "8px 12px",
-                    borderRadius: 8,
-                    cursor: "pointer",
-                  }}
-                >
-                  Retry
-                </button>
-              </td>
+  const fetchPipelines = () => {
+  fetch("http://localhost:5050/pipelines")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Pipelines Data:", data);
+      setPipelines(data);
+    })
+    .catch((err) => console.error("Pipeline Fetch Error:", err));
+};
+  useEffect(() => {
+    fetchPipelines();
+  }, []);
+
+  const filtered = pipelines.filter((item) => {
+  const text = `${item.pipeline_name || ""} ${item.source || ""} ${item.destination || ""} ${item.status || ""}`.toLowerCase();
+  return text.includes(search.toLowerCase());
+});
+
+  return (
+    <div style={{ marginTop: 24, fontFamily: "Inter, sans-serif" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20,
+        }}
+      >
+        <div>
+          <h2 style={{ margin: 0 }}>Pipeline Monitoring</h2>
+          <p style={{ color: "#64748b" }}>
+            Live ETL and Data Pipeline Monitoring
+          </p>
+        </div>
+
+        <button style={primaryButton}>+ Trigger Pipeline</button>
+      </div>
+
+      <div
+        style={{
+          background: "white",
+          padding: 18,
+          borderRadius: 16,
+          marginBottom: 20,
+          boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+        }}
+      >
+        <input
+          placeholder="Search pipelines..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            width: "100%",
+            padding: 12,
+            borderRadius: 10,
+            border: "1px solid #cbd5e1",
+          }}
+        />
+      </div>
+
+      <div
+        style={{
+          background: "white",
+          borderRadius: 16,
+          overflow: "hidden",
+          boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+        }}
+      >
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+          }}
+        >
+          <thead>
+            <tr style={{ background: "#2563eb" }}>
+              <th style={th}>ID</th>
+              <th style={th}>Pipeline</th>
+              <th style={th}>Source</th>
+              <th style={th}>Destination</th>
+              <th style={th}>Status</th>
+              <th style={th}>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+
+          <tbody>
+            {filtered.map((item) => (
+              <tr
+                key={item.id}
+                style={{ borderBottom: "1px solid #e2e8f0" }}
+              >
+                <td style={td}>{item.id}</td>
+
+                <td style={{ ...td, fontWeight: 700 }}>
+                  {item.pipeline_name}
+                </td>
+
+                <td style={td}>{item.source}</td>
+
+                <td style={td}>{item.destination}</td>
+
+                <td style={td}>
+                  <StatusBadge status={item.status} />
+                </td>
+
+                <td style={td}>
+                  <button style={actionButton}>Logs</button>{" "}
+                  <button style={actionButton}>Retry</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <p style={{ marginTop: 15, color: "#64748b" }}>
+        Showing {filtered.length} of {pipelines.length} pipelines
+      </p>
     </div>
   );
 }
+
+const th = {
+  padding: 14,
+  color: "white",
+  textAlign: "left",
+};
+
+const td = {
+  padding: 14,
+};
+
+const primaryButton = {
+  background: "#2563eb",
+  color: "white",
+  border: "none",
+  borderRadius: 10,
+  padding: "10px 18px",
+  cursor: "pointer",
+  fontWeight: 600,
+};
+
+const actionButton = {
+  border: "1px solid #dbeafe",
+  background: "#eff6ff",
+  color: "#2563eb",
+  borderRadius: 8,
+  padding: "6px 10px",
+  cursor: "pointer",
+  marginRight: 6,
+};
 
 export default Pipelines;

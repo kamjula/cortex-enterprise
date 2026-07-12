@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import StatsCards from "./components/StatsCards";
-import Datasets from "./components/Datasets";
-import DataQuality from "./components/DataQuality";
+
+import Datasets from "./pages/Datasets";
 import Pipelines from "./components/Pipelines";
+import DataQuality from "./components/DataQuality";
 import AICopilot from "./components/AICopilot";
+import Alerts from "./components/Alerts";
 
 import {
   BarChart,
@@ -20,12 +22,51 @@ import {
 
 function App() {
   const [activePage, setActivePage] = useState("Dashboard");
+  const [dashboard, setDashboard] = useState(null);
+  const [dashboardError, setDashboardError] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:5050/dashboard")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`Dashboard request failed: ${res.status}`);
+        }
+
+        return res.json();
+      })
+      .then((data) => {
+        setDashboard(data);
+        setDashboardError("");
+      })
+      .catch((err) => {
+        console.error("Dashboard Fetch Error:", err);
+        setDashboardError("Could not load dashboard data.");
+      });
+  }, []);
 
   const stats = [
-    { title: "Total Datasets", value: "1,248", change: "+12.5%" },
-    { title: "Active Pipelines", value: "320", change: "+8.2%" },
-    { title: "Data Quality", value: "98.6%", change: "+2.4%" },
-    { title: "Alerts", value: "3", change: "-1 today" },
+    {
+      title: "Total Datasets",
+      value: dashboard ? dashboard.totalDatasets : "...",
+      change: "Live",
+    },
+    {
+      title: "Healthy",
+      value: dashboard ? dashboard.healthy : "...",
+      change: "Database",
+    },
+    {
+      title: "Warning",
+      value: dashboard ? dashboard.warning : "...",
+      change: "Needs Review",
+    },
+    {
+      title: "Total Records",
+      value: dashboard
+        ? Number(dashboard.totalRecords || 0).toLocaleString()
+        : "...",
+      change: "Live",
+    },
   ];
 
   const pipelineData = [
@@ -39,7 +80,14 @@ function App() {
   ];
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
+    <div
+      style={{
+        display: "flex",
+        minHeight: "100vh",
+        background: "#F8FAFC",
+        fontFamily: "Inter, sans-serif",
+      }}
+    >
       <Sidebar
         activePage={activePage}
         onNavigate={setActivePage}
@@ -48,8 +96,8 @@ function App() {
       <main
         style={{
           flex: 1,
-          background: "#f8fafc",
-          padding: 32,
+          padding: "30px",
+          overflowY: "auto",
         }}
       >
         <Header />
@@ -57,79 +105,131 @@ function App() {
 
         {activePage === "Dashboard" && (
           <>
+            {dashboardError && (
+              <p
+                style={{
+                  color: "#DC2626",
+                  background: "#FEF2F2",
+                  padding: "12px",
+                  borderRadius: "10px",
+                  marginTop: "20px",
+                }}
+              >
+                {dashboardError}
+              </p>
+            )}
+
             <StatsCards stats={stats} />
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "2fr 1fr",
-                gap: 20,
-                marginTop: 28,
+                gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1fr)",
+                gap: "20px",
+                marginTop: "30px",
               }}
             >
               <div
                 style={{
-                  background: "white",
-                  padding: 24,
-                  borderRadius: 16,
+                  background: "#FFFFFF",
+                  borderRadius: "16px",
+                  padding: "24px",
+                  boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+                  border: "1px solid #E2E8F0",
                 }}
               >
-                <h3>Pipeline Activity</h3>
+                <h3
+                  style={{
+                    marginTop: 0,
+                    marginBottom: "20px",
+                    color: "#0F172A",
+                  }}
+                >
+                  Pipeline Activity
+                </h3>
 
-                <div style={{ width: "100%", height: 250 }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={pipelineData}>
-                      <XAxis dataKey="day" />
-                      <YAxis />
-                      <Tooltip />
-                      <Bar
-                        dataKey="runs"
-                        fill="#2563eb"
-                        radius={[8, 8, 0, 0]}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
+                <ResponsiveContainer width="100%" height={260}>
+                  <BarChart data={pipelineData}>
+                    <XAxis dataKey="day" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar
+                      dataKey="runs"
+                      fill="#2563EB"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
 
               <div
                 style={{
-                  background: "white",
-                  padding: 24,
-                  borderRadius: 16,
+                  background: "#FFFFFF",
+                  borderRadius: "16px",
+                  padding: "24px",
+                  boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+                  border: "1px solid #E2E8F0",
                 }}
               >
-                <h3>AI Copilot</h3>
-                <p>
-                  Ask CortexOS questions about datasets,
-                  pipeline failures, and quality issues.
+                <h3
+                  style={{
+                    marginTop: 0,
+                    color: "#0F172A",
+                  }}
+                >
+                  AI Copilot
+                </h3>
+
+                <p
+                  style={{
+                    color: "#64748B",
+                    lineHeight: 1.6,
+                  }}
+                >
+                  Ask CortexOS about pipeline failures, datasets, AI insights,
+                  SQL generation, and data quality recommendations.
                 </p>
+
+                <button
+                  onClick={() => setActivePage("AI Copilot")}
+                  style={{
+                    marginTop: "14px",
+                    background: "#2563EB",
+                    color: "#FFFFFF",
+                    border: "none",
+                    borderRadius: "10px",
+                    padding: "10px 16px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Open AI Copilot
+                </button>
               </div>
             </div>
           </>
         )}
 
         {activePage === "Datasets" && <Datasets />}
+
         {activePage === "Pipelines" && <Pipelines />}
+
         {activePage === "Data Quality" && <DataQuality />}
+
         {activePage === "AI Copilot" && <AICopilot />}
 
-        {activePage === "Alerts" && (
-          <h2 style={{ marginTop: 30 }}>
-            Alerts Page Coming Soon
-          </h2>
-        )}
+        {activePage === "Alerts" && <Alerts />}
 
         {activePage === "Users" && (
-          <h2 style={{ marginTop: 30 }}>
-            Users Page Coming Soon
-          </h2>
+          <div style={{ marginTop: 40 }}>
+            <h2>Users Page Coming Soon</h2>
+          </div>
         )}
 
         {activePage === "Settings" && (
-          <h2 style={{ marginTop: 30 }}>
-            Settings Page Coming Soon
-          </h2>
+          <div style={{ marginTop: 40 }}>
+            <h2>Settings Page Coming Soon</h2>
+          </div>
         )}
       </main>
     </div>
