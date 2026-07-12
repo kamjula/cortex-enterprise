@@ -58,6 +58,28 @@ app.get("/copilot", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+app.get("/data-quality", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        id,
+        dataset_name,
+        score,
+        missing_values,
+        duplicate_records,
+        failed_rules,
+        status,
+        created_at
+      FROM data_quality_checks
+      ORDER BY id
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("DATA QUALITY ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 const PORT = 5050;
 
 app.listen(PORT, () => {
