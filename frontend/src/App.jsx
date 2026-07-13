@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import Users from "./components/Users";
 import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
@@ -233,11 +233,7 @@ function App() {
 
         {activePage === "Alerts" && <Alerts />}
 
-        {activePage === "Users" && (
-          <div style={{ marginTop: 40 }}>
-            <h2>Users Page Coming Soon</h2>
-          </div>
-        )}
+        {activePage === "Users" && <Users />}
 
         {activePage === "Settings" && (
           <Settings />
