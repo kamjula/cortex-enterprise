@@ -1,21 +1,21 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 function StatusBadge({ status }) {
   const colors = {
     Success: {
-      background: "#ecfdf3",
+      background: "#ECFDF3",
       color: "#047857",
-      border: "#a7f3d0",
+      border: "#A7F3D0",
     },
     Running: {
-      background: "#eff6ff",
-      color: "#2563eb",
-      border: "#bfdbfe",
+      background: "#EFF6FF",
+      color: "#2563EB",
+      border: "#BFDBFE",
     },
     Failed: {
-      background: "#fef2f2",
-      color: "#dc2626",
-      border: "#fecaca",
+      background: "#FEF2F2",
+      color: "#DC2626",
+      border: "#FECACA",
     },
   };
 
@@ -24,9 +24,10 @@ function StatusBadge({ status }) {
   return (
     <span
       style={{
+        display: "inline-block",
         padding: "6px 10px",
-        borderRadius: 999,
-        fontSize: 12,
+        borderRadius: "999px",
+        fontSize: "12px",
         fontWeight: 700,
         background: style.background,
         color: style.color,
@@ -41,157 +42,324 @@ function StatusBadge({ status }) {
 function Pipelines() {
   const [pipelines, setPipelines] = useState([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const fetchPipelines = () => {
-  fetch("http://localhost:5050/pipelines")
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Pipelines Data:", data);
-      setPipelines(data);
-    })
-    .catch((err) => console.error("Pipeline Fetch Error:", err));
-};
+  const fetchPipelines = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+        "http://localhost:5050/pipelines"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load pipelines");
+      }
+
+      const data = await response.json();
+      setPipelines(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Pipeline Fetch Error:", err);
+      setError(err.message || "Could not load pipelines");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchPipelines();
   }, []);
 
-  const filtered = pipelines.filter((item) => {
-  const text = `${item.pipeline_name || ""} ${item.source || ""} ${item.destination || ""} ${item.status || ""}`.toLowerCase();
-  return text.includes(search.toLowerCase());
-});
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!query) {
+      return pipelines;
+    }
+
+    return pipelines.filter((item) => {
+      const text = `
+        ${item.pipeline_name || ""}
+        ${item.source || ""}
+        ${item.destination || ""}
+        ${item.status || ""}
+      `.toLowerCase();
+
+      return text.includes(query);
+    });
+  }, [pipelines, search]);
 
   return (
-    <div style={{ marginTop: 24, fontFamily: "Inter, sans-serif" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
+    <div style={styles.page}>
+      <div style={styles.header}>
         <div>
-          <h2 style={{ margin: 0 }}>Pipeline Monitoring</h2>
-          <p style={{ color: "#64748b" }}>
-            Live ETL and Data Pipeline Monitoring
+          <h2 style={styles.title}>Pipeline Monitoring</h2>
+
+          <p style={styles.subtitle}>
+            Live ETL and data pipeline monitoring.
           </p>
         </div>
 
-        <button style={primaryButton}>+ Trigger Pipeline</button>
+        <button
+          type="button"
+          style={styles.primaryButton}
+        >
+          + Trigger Pipeline
+        </button>
       </div>
 
-      <div
-        style={{
-          background: "white",
-          padding: 18,
-          borderRadius: 16,
-          marginBottom: 20,
-          boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
-        }}
-      >
+      <div style={styles.searchCard}>
+        <label
+          htmlFor="pipeline-search"
+          style={styles.searchLabel}
+        >
+          Search pipelines
+        </label>
+
         <input
+          id="pipeline-search"
+          name="pipelineSearch"
+          type="search"
           placeholder="Search pipelines..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{
-            width: "100%",
-            padding: 12,
-            borderRadius: 10,
-            border: "1px solid #cbd5e1",
-          }}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
+          style={styles.searchInput}
         />
       </div>
 
-      <div
-        style={{
-          background: "white",
-          borderRadius: 16,
-          overflow: "hidden",
-          boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
-        }}
-      >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-          }}
-        >
-          <thead>
-            <tr style={{ background: "#2563eb" }}>
-              <th style={th}>ID</th>
-              <th style={th}>Pipeline</th>
-              <th style={th}>Source</th>
-              <th style={th}>Destination</th>
-              <th style={th}>Status</th>
-              <th style={th}>Actions</th>
-            </tr>
-          </thead>
+      {error && (
+        <div style={styles.errorCard}>{error}</div>
+      )}
 
-          <tbody>
-            {filtered.map((item) => (
-              <tr
-                key={item.id}
-                style={{ borderBottom: "1px solid #e2e8f0" }}
-              >
-                <td style={td}>{item.id}</td>
+      {loading ? (
+        <div style={styles.stateCard}>
+          Loading pipelines...
+        </div>
+      ) : (
+        <div style={styles.tableCard}>
+          <div style={styles.tableWrapper}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>ID</th>
+                  <th style={styles.th}>Pipeline</th>
+                  <th style={styles.th}>Source</th>
+                  <th style={styles.th}>Destination</th>
+                  <th style={styles.th}>Status</th>
+                  <th style={styles.th}>Actions</th>
+                </tr>
+              </thead>
 
-                <td style={{ ...td, fontWeight: 700 }}>
-                  {item.pipeline_name}
-                </td>
+              <tbody>
+                {filtered.map((item) => (
+                  <tr key={item.id}>
+                    <td style={styles.td}>{item.id}</td>
 
-                <td style={td}>{item.source}</td>
+                    <td style={styles.tdStrong}>
+                      {item.pipeline_name}
+                    </td>
 
-                <td style={td}>{item.destination}</td>
+                    <td style={styles.td}>
+                      {item.source}
+                    </td>
 
-                <td style={td}>
-                  <StatusBadge status={item.status} />
-                </td>
+                    <td style={styles.td}>
+                      {item.destination}
+                    </td>
 
-                <td style={td}>
-                  <button style={actionButton}>Logs</button>{" "}
-                  <button style={actionButton}>Retry</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <td style={styles.td}>
+                      <StatusBadge status={item.status} />
+                    </td>
 
-      <p style={{ marginTop: 15, color: "#64748b" }}>
-        Showing {filtered.length} of {pipelines.length} pipelines
-      </p>
+                    <td style={styles.td}>
+                      <div style={styles.actionButtons}>
+                        <button
+                          type="button"
+                          style={styles.actionButton}
+                        >
+                          Logs
+                        </button>
+
+                        <button
+                          type="button"
+                          style={styles.actionButton}
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {filtered.length === 0 ? (
+            <div style={styles.emptyState}>
+              No pipelines found.
+            </div>
+          ) : (
+            <div style={styles.footer}>
+              Showing {filtered.length} of{" "}
+              {pipelines.length} pipelines
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-const th = {
-  padding: 14,
-  color: "white",
-  textAlign: "left",
-};
+const styles = {
+  page: {
+    marginTop: "24px",
+    fontFamily: "Inter, sans-serif",
+  },
 
-const td = {
-  padding: 14,
-};
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: "20px",
+    marginBottom: "20px",
+  },
 
-const primaryButton = {
-  background: "#2563eb",
-  color: "white",
-  border: "none",
-  borderRadius: 10,
-  padding: "10px 18px",
-  cursor: "pointer",
-  fontWeight: 600,
-};
+  title: {
+    margin: 0,
+    color: "#111827",
+  },
 
-const actionButton = {
-  border: "1px solid #dbeafe",
-  background: "#eff6ff",
-  color: "#2563eb",
-  borderRadius: 8,
-  padding: "6px 10px",
-  cursor: "pointer",
-  marginRight: 6,
+  subtitle: {
+    margin: "8px 0 0",
+    color: "#64748B",
+  },
+
+  primaryButton: {
+    background: "#2563EB",
+    color: "#FFFFFF",
+    border: "none",
+    borderRadius: "10px",
+    padding: "10px 18px",
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  searchCard: {
+    marginBottom: "20px",
+    padding: "18px",
+    border: "1px solid #E2E8F0",
+    borderRadius: "16px",
+    background: "#FFFFFF",
+    boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+  },
+
+  searchLabel: {
+    display: "block",
+    marginBottom: "8px",
+    color: "#374151",
+    fontSize: "14px",
+    fontWeight: 600,
+  },
+
+  searchInput: {
+    boxSizing: "border-box",
+    width: "100%",
+    padding: "12px",
+    border: "1px solid #CBD5E1",
+    borderRadius: "10px",
+    fontSize: "14px",
+  },
+
+  tableCard: {
+    overflow: "hidden",
+    border: "1px solid #E2E8F0",
+    borderRadius: "16px",
+    background: "#FFFFFF",
+    boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+  },
+
+  tableWrapper: {
+    overflowX: "auto",
+  },
+
+  table: {
+    width: "100%",
+    minWidth: "850px",
+    borderCollapse: "collapse",
+  },
+
+  th: {
+    padding: "14px",
+    background: "#2563EB",
+    color: "#FFFFFF",
+    textAlign: "left",
+    fontSize: "13px",
+  },
+
+  td: {
+    padding: "14px",
+    borderBottom: "1px solid #E2E8F0",
+    color: "#4B5563",
+    fontSize: "14px",
+  },
+
+  tdStrong: {
+    padding: "14px",
+    borderBottom: "1px solid #E2E8F0",
+    color: "#111827",
+    fontSize: "14px",
+    fontWeight: 700,
+  },
+
+  actionButtons: {
+    display: "flex",
+    gap: "8px",
+  },
+
+  actionButton: {
+    border: "1px solid #DBEAFE",
+    background: "#EFF6FF",
+    color: "#2563EB",
+    borderRadius: "8px",
+    padding: "6px 10px",
+    cursor: "pointer",
+  },
+
+  errorCard: {
+    marginBottom: "16px",
+    padding: "14px",
+    border: "1px solid #FECACA",
+    borderRadius: "10px",
+    background: "#FEF2F2",
+    color: "#991B1B",
+  },
+
+  stateCard: {
+    padding: "30px",
+    border: "1px solid #E2E8F0",
+    borderRadius: "16px",
+    background: "#FFFFFF",
+    color: "#64748B",
+    textAlign: "center",
+  },
+
+  emptyState: {
+    padding: "30px",
+    color: "#64748B",
+    textAlign: "center",
+  },
+
+  footer: {
+    padding: "14px 18px",
+    background: "#F8FAFC",
+    color: "#64748B",
+    textAlign: "center",
+    fontSize: "13px",
+  },
 };
 
 export default Pipelines;
