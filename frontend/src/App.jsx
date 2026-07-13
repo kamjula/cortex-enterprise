@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import StatsCards from "./components/StatsCards";
+import Settings from "./components/Settings";
 
 import Datasets from "./pages/Datasets";
 import Pipelines from "./components/Pipelines";
@@ -125,7 +126,8 @@ function App() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "minmax(0, 2fr) minmax(280px, 1fr)",
+                gridTemplateColumns:
+                  "minmax(0, 2fr) minmax(280px, 1fr)",
                 gap: "20px",
                 marginTop: "30px",
               }}
@@ -135,7 +137,8 @@ function App() {
                   background: "#FFFFFF",
                   borderRadius: "16px",
                   padding: "24px",
-                  boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+                  boxShadow:
+                    "0 10px 30px rgba(15,23,42,0.06)",
                   border: "1px solid #E2E8F0",
                 }}
               >
@@ -168,7 +171,8 @@ function App() {
                   background: "#FFFFFF",
                   borderRadius: "16px",
                   padding: "24px",
-                  boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
+                  boxShadow:
+                    "0 10px 30px rgba(15,23,42,0.06)",
                   border: "1px solid #E2E8F0",
                 }}
               >
@@ -187,12 +191,16 @@ function App() {
                     lineHeight: 1.6,
                   }}
                 >
-                  Ask CortexOS about pipeline failures, datasets, AI insights,
-                  SQL generation, and data quality recommendations.
+                  Ask CortexOS about pipeline failures,
+                  datasets, AI insights, SQL generation, and
+                  data quality recommendations.
                 </p>
 
                 <button
-                  onClick={() => setActivePage("AI Copilot")}
+                  type="button"
+                  onClick={() =>
+                    setActivePage("AI Copilot")
+                  }
                   style={{
                     marginTop: "14px",
                     background: "#2563EB",
@@ -215,9 +223,13 @@ function App() {
 
         {activePage === "Pipelines" && <Pipelines />}
 
-        {activePage === "Data Quality" && <DataQuality />}
+        {activePage === "Data Quality" && (
+          <DataQuality />
+        )}
 
-        {activePage === "AI Copilot" && <AICopilot />}
+        {activePage === "AI Copilot" && (
+          <AICopilot />
+        )}
 
         {activePage === "Alerts" && <Alerts />}
 
@@ -228,9 +240,7 @@ function App() {
         )}
 
         {activePage === "Settings" && (
-          <div style={{ marginTop: 40 }}>
-            <h2>Settings Page Coming Soon</h2>
-          </div>
+          <Settings />
         )}
       </main>
     </div>
