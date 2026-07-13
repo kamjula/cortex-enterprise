@@ -1,203 +1,247 @@
 import { useEffect, useState } from "react";
 
-function StatusBadge({ status }) {
-  const palette = {
-    Healthy: { background: "#ecfdf3", color: "#047857", border: "#a7f3d0" },
-    Warning: { background: "#fffbeb", color: "#b45309", border: "#fde68a" },
-    Failed: { background: "#fef2f2", color: "#dc2626", border: "#fecaca" },
-  };
-
-  const style = palette[status] || palette.Healthy;
-
-  return (
-    <span style={{
-      padding: "6px 10px",
-      borderRadius: 999,
-      fontSize: 12,
-      fontWeight: 700,
-      background: style.background,
-      color: style.color,
-      border: `1px solid ${style.border}`,
-    }}>
-      {status}
-    </span>
-  );
-}
-
-function MetricCard({ label, value, detail }) {
-  return (
-    <div style={{
-      background: "white",
-      borderRadius: 16,
-      padding: 20,
-      boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
-      border: "1px solid #e2e8f0",
-    }}>
-      <div style={{ color: "#64748b", fontSize: 13 }}>{label}</div>
-      <div style={{ fontSize: 28, fontWeight: 700, color: "#0f172a" }}>{value}</div>
-      <div style={{ color: "#94a3b8", fontSize: 12 }}>{detail}</div>
-    </div>
-  );
-}
-
 function Datasets() {
   const [datasets, setDatasets] = useState([]);
-  const [search, setSearch] = useState("");
+  const [name, setName] = useState("");
+  const [owner, setOwner] = useState("");
+  const [records, setRecords] = useState("");
+  const [status, setStatus] = useState("Healthy");
+  const [editingId, setEditingId] = useState(null);
+  const [error, setError] = useState("");
 
-  const fetchDatasets = () => {
-    fetch("http://localhost:5050/datasets")
-      .then((res) => res.json())
-      .then((data) => setDatasets(data))
-      .catch((err) => console.error("Datasets Fetch Error:", err));
+  const loadDatasets = async () => {
+    try {
+      setError("");
+
+      const response = await fetch("http://localhost:5050/datasets");
+
+      if (!response.ok) {
+        throw new Error("Failed to load datasets");
+      }
+
+      const data = await response.json();
+      setDatasets(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Dataset fetch error:", err);
+      setError(err.message || "Could not load datasets");
+    }
   };
 
   useEffect(() => {
-    fetchDatasets();
+    loadDatasets();
   }, []);
 
-  const filtered = datasets.filter((item) => {
-  const text = `${item.name} ${item.owner} ${item.status}`.toLowerCase();
-  return text.includes(search.toLowerCase());
-});
+  const resetForm = () => {
+    setName("");
+    setOwner("");
+    setRecords("");
+    setStatus("Healthy");
+    setEditingId(null);
+  };
 
-  const healthy = datasets.filter((d) => d.status === "Healthy").length;
-  const warning = datasets.filter((d) => d.status === "Warning").length;
-  const failed = datasets.filter((d) => d.status === "Failed").length;
+  const saveDataset = async () => {
+    if (!name.trim() || !owner.trim() || !records) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    const payload = {
+      name: name.trim(),
+      owner: owner.trim(),
+      records: Number(records),
+      status,
+    };
+
+    try {
+      setError("");
+
+      const response = await fetch(
+        editingId
+          ? `http://localhost:5050/datasets/${editingId}`
+          : "http://localhost:5050/datasets",
+        {
+          method: editingId ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save dataset");
+      }
+
+      resetForm();
+      await loadDatasets();
+    } catch (err) {
+      console.error("Save dataset error:", err);
+      setError(err.message || "Could not save dataset");
+    }
+  };
+
+  const editDataset = (item) => {
+    setEditingId(item.id);
+    setName(item.name);
+    setOwner(item.owner);
+    setRecords(String(item.records));
+    setStatus(item.status);
+  };
+
+  const deleteDataset = async (id) => {
+    if (!window.confirm("Delete this dataset?")) {
+      return;
+    }
+
+    try {
+      setError("");
+
+      const response = await fetch(
+        `http://localhost:5050/datasets/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete dataset");
+      }
+
+      await loadDatasets();
+    } catch (err) {
+      console.error("Delete dataset error:", err);
+      setError(err.message || "Could not delete dataset");
+    }
+  };
 
   return (
-    <div style={{ marginTop: 24, fontFamily: "Inter, sans-serif" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 20 }}>
-        <div>
-          <h2 style={{ margin: 0, fontSize: 28, color: "#0f172a" }}>Dataset Management</h2>
-          <p style={{ margin: "6px 0 0", color: "#64748b" }}>
-            Live PostgreSQL datasets connected to CortexOS.
-          </p>
-        </div>
+    <div style={{ marginTop: 30 }}>
+      <h2>Dataset Management</h2>
+      <p>Live PostgreSQL datasets connected to CortexOS.</p>
 
-        <button style={primaryButton}>+ Add Dataset</button>
-      </div>
-
-      <div style={{
-        background: "white",
-        borderRadius: 16,
-        padding: 18,
-        marginBottom: 20,
-        boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
-        border: "1px solid #e2e8f0",
-        display: "flex",
-        gap: 12,
-      }}>
-        <input
-          placeholder="Search datasets"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
+      {error && (
+        <div
           style={{
-            flex: 1,
-            padding: "10px 12px",
-            borderRadius: 10,
-            border: "1px solid #cbd5e1",
+            marginBottom: 16,
+            padding: 12,
+            background: "#FEF2F2",
+            color: "#991B1B",
+            borderRadius: 8,
           }}
+        >
+          {error}
+        </div>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 10,
+          marginBottom: 20,
+        }}
+      >
+        <input
+          placeholder="Dataset Name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
         />
-        <button onClick={fetchDatasets} style={secondaryButton}>Refresh</button>
+
+        <input
+          placeholder="Owner"
+          value={owner}
+          onChange={(event) => setOwner(event.target.value)}
+        />
+
+        <input
+          type="number"
+          placeholder="Records"
+          value={records}
+          onChange={(event) => setRecords(event.target.value)}
+        />
+
+        <select
+          value={status}
+          onChange={(event) => setStatus(event.target.value)}
+        >
+          <option value="Healthy">Healthy</option>
+          <option value="Warning">Warning</option>
+          <option value="Failed">Failed</option>
+        </select>
+
+        <button type="button" onClick={saveDataset}>
+          {editingId ? "Update Dataset" : "Add Dataset"}
+        </button>
+
+        {editingId && (
+          <button type="button" onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </div>
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-        gap: 16,
-        marginBottom: 20,
-      }}>
-        <MetricCard label="Total Datasets" value={datasets.length} detail="From PostgreSQL" />
-        <MetricCard label="Healthy" value={healthy} detail="Operational" />
-        <MetricCard label="Warning" value={warning} detail="Needs review" />
-        <MetricCard label="Failed" value={failed} detail="Requires action" />
-      </div>
+      <table
+        style={{
+          width: "100%",
+          background: "white",
+          borderCollapse: "collapse",
+        }}
+      >
+        <thead>
+          <tr>
+            <th style={th}>ID</th>
+            <th style={th}>Name</th>
+            <th style={th}>Owner</th>
+            <th style={th}>Records</th>
+            <th style={th}>Status</th>
+            <th style={th}>Actions</th>
+          </tr>
+        </thead>
 
-      <div style={{
-        background: "white",
-        borderRadius: 16,
-        overflow: "hidden",
-        boxShadow: "0 10px 30px rgba(15,23,42,0.06)",
-        border: "1px solid #e2e8f0",
-      }}>
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ background: "#f8fafc" }}>
-              {["ID", "Dataset Name", "Owner", "Records", "Status", "Actions"].map((header) => (
-                <th key={header} style={thStyle}>{header}</th>
-              ))}
+        <tbody>
+          {datasets.map((item) => (
+            <tr key={item.id}>
+              <td style={td}>{item.id}</td>
+              <td style={td}>{item.name}</td>
+              <td style={td}>{item.owner}</td>
+              <td style={td}>
+                {Number(item.records || 0).toLocaleString()}
+              </td>
+              <td style={td}>{item.status}</td>
+              <td style={td}>
+                <button
+                  type="button"
+                  onClick={() => editDataset(item)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => deleteDataset(item.id)}
+                  style={{ marginLeft: 8 }}
+                >
+                  Delete
+                </button>
+              </td>
             </tr>
-          </thead>
-
-          <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id} style={{ borderTop: "1px solid #e2e8f0" }}>
-                <td style={tdStyle}>{item.id}</td>
-                <td style={{ ...tdStyle, fontWeight: 700 }}>{item.name}</td>
-                <td style={tdStyle}>{item.owner}</td>
-                <td style={tdStyle}>{Number(item.records).toLocaleString()}</td>
-                <td style={tdStyle}><StatusBadge status={item.status} /></td>
-                <td style={tdStyle}>
-                  <button style={actionButton}>View</button>{" "}
-                  <button style={actionButton}>Edit</button>{" "}
-                  <button style={{ ...actionButton, color: "#dc2626" }}>Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <p style={{ marginTop: 16, color: "#64748b" }}>
-        Showing {filtered.length} of {datasets.length} datasets
-      </p>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-const thStyle = {
-  padding: "14px 16px",
-  textAlign: "left",
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#475569",
-  textTransform: "uppercase",
-};
-
-const tdStyle = {
-  padding: "14px 16px",
-  color: "#334155",
-};
-
-const primaryButton = {
-  background: "#2563eb",
+const th = {
+  padding: 12,
+  background: "#2563EB",
   color: "white",
-  border: "none",
-  borderRadius: 10,
-  padding: "10px 16px",
-  fontWeight: 600,
-  cursor: "pointer",
+  textAlign: "left",
 };
 
-const secondaryButton = {
-  background: "#f8fafc",
-  color: "#334155",
-  border: "1px solid #cbd5e1",
-  borderRadius: 10,
-  padding: "10px 14px",
-  fontWeight: 600,
-  cursor: "pointer",
-};
-
-const actionButton = {
-  border: "1px solid #dbeafe",
-  background: "#f8fbff",
-  color: "#2563eb",
-  borderRadius: 8,
-  padding: "6px 10px",
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
+const td = {
+  padding: 12,
+  borderBottom: "1px solid #E5E7EB",
 };
 
 export default Datasets;

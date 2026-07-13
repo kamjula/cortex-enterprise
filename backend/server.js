@@ -80,6 +80,137 @@ app.get("/data-quality", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+app.get("/alerts", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM alerts ORDER BY created_at DESC, id DESC"
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("GET ALERTS ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/alerts", async (req, res) => {
+  try {
+    const { title, severity, message, status = "Open" } = req.body;
+
+    if (!title || !severity || !message) {
+      return res.status(400).json({
+        error: "Title, severity, and message are required",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        INSERT INTO alerts (title, severity, message, status)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `,
+      [title, severity, message, status]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("CREATE ALERT ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put("/alerts/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, severity, message, status } = req.body;
+
+    if (!title || !severity || !message || !status) {
+      return res.status(400).json({
+        error: "Title, severity, message, and status are required",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        UPDATE alerts
+        SET
+          title = $1,
+          severity = $2,
+          message = $3,
+          status = $4
+        
+        WHERE id = $5
+        RETURNING *
+      `,
+      [title, severity, message, status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Alert not found" });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("UPDATE ALERT ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.patch("/alerts/:id/resolve", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+        UPDATE alerts
+        SET status = 'Resolved'
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Alert not found",
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("RESOLVE ALERT ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+app.delete("/alerts/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+        DELETE FROM alerts
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Alert not found",
+      });
+    }
+
+    res.json({
+      message: "Alert deleted successfully",
+      alert: result.rows[0],
+    });
+  } catch (err) {
+    console.error("DELETE ALERT ERROR:", err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = 5050;
 
 app.listen(PORT, () => {
