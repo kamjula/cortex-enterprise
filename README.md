@@ -1,14 +1,29 @@
 # CortexOS — Enterprise Data Platform
+Enterprise AI Data Platform
 
-CortexOS is an enterprise-style full-stack data platform built with React, Node.js, Express, and PostgreSQL. It currently supports live dataset management and includes prototype interfaces for pipeline monitoring, data quality, and AI-assisted workflows.
+React • Node.js • Express • PostgreSQL
+
+Pipeline Monitoring • Data Quality • AI Copilot • Dataset Management
+CortexOS is an AI-powered enterprise data platform designed to help teams monitor data pipelines, improve data quality, manage enterprise datasets, and surface AI-driven insights from a single workspace. Built with React, Node.js, Express, and PostgreSQL, the platform combines production-ready CRUD functionality with enterprise dashboard prototypes for modern data operations.
 
 ## Tech Stack
 
-- Frontend: React 19, Vite, Recharts, Lucide Icons
-
-- Backend: Node.js, Express 5
-
+- Frontend: React 19, Vite, JavaScript, Recharts, Lucide React
+- Backend: Node.js, Express.js
 - Database: PostgreSQL
+- Tools: Git, GitHub, VS Code, Figma
+
+## Architecture
+
+React (Frontend)
+
+↓
+
+Express REST API
+
+↓
+
+PostgreSQL Database
 
 ## Project Status
 
@@ -18,16 +33,51 @@ CortexOS is an enterprise-style full-stack data platform built with React, Node.
 | Pipeline Monitoring | UI Prototype |
 | Data Quality | UI Prototype |
 | AI Copilot | UI Prototype |
-| Alerts | In Progress |
-| Users, Settings, Authentication | Planned |
+ | Alerts | Functional (CRUD)|
+| Users | UI Prototype
+
+Settings | UI Prototype
+
+Authentication | Planned|
 
 ## Current Features
+### Dataset Management
 
+(image)
+
+### AI Copilot
+
+(image)
+
+### Users
+
+(image)
+
+### Settings
+
+(image)
 - **Dataset Management (fully functional):** Create, read, update, and delete datasets via a REST API backed by PostgreSQL.
-- **Pipeline Monitoring (UI preview):** Dashboard view for pipeline runs and statuses. Currently displays sample data; live backend integration is planned.
-- **Data Quality Dashboard (UI preview):** Visual quality-score dashboard per dataset. Currently displays sample data; live backend integration is planned.
-- **AI Copilot (UI preview):** Chat-style interface for asking questions about your data. Currently a front-end prototype; AI/backend integration is planned.
+- **Pipeline Monitoring: Interactive dashboard with pipeline status tracking, retry actions, trigger pipeline workflow, and execution log viewer.
+- **Data Quality Dashboard: Enterprise dashboard for monitoring dataset quality scores, validation metrics, missing values, and failed quality checks.
+- **AI Copilot: Conversational interface designed to answer questions about datasets, pipelines, alerts, and data quality using AI-powered workflows.
+- **- **Alerts Management:** Manage enterprise alerts with severity levels, status tracking, edit, resolve, and delete workflows.
+## Highlights
 
+- Enterprise dashboard with 8 integrated modules
+
+- Responsive modern UI
+
+- RESTful API architecture
+
+- PostgreSQL database integration
+
+- Interactive prototype workflows
+
+- AI Copilot interface
+
+- Pipeline monitoring and execution logs
+
+- Data Quality analytics
 ## Roadmap
 
 See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for in-progress and planned work, including Alerts CRUD, User Management, a Settings page, Login/JWT authentication, Role-Based Access Control, deployment configuration, and improved loading/empty/error states.
@@ -85,4 +135,4 @@ npm run dev
 
 ## License
 
-This project is currently shared for portfolio and educational purposes.
+This repository is intended for portfolio and educational purposes only. Commercial use or redistribution without permission is not permitted.
