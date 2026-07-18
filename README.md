@@ -1,12 +1,14 @@
 # CortexOS — Enterprise Data Platform
 
-> Enterprise AI Data Platform
+> Enterprise Data Operations Platform with AI-Assisted Workflows
 
 **React • Node.js • Express • PostgreSQL**
 
-Pipeline Monitoring • Data Quality • AI Copilot • Dataset Management
+Pipeline Monitoring • Data Quality • Dataset Management • Alerts • AI Copilot
 
-CortexOS is an AI-powered enterprise data platform designed to help teams monitor data pipelines, improve data quality, manage enterprise datasets, and surface AI-driven insights from a single workspace. Built with React, Node.js, Express, and PostgreSQL, the platform combines functional full-stack workflows with enterprise dashboard interfaces for modern data operations.
+CortexOS is a full-stack enterprise data platform designed to help teams monitor data pipelines, improve data quality, manage datasets, track alerts, and explore AI-assisted operational workflows from a single workspace.
+
+Built with React, Node.js, Express, and PostgreSQL, the platform combines functional CRUD operations, REST APIs, pipeline execution workflows, data quality monitoring, and enterprise dashboard interfaces.
 
 ## Tech Stack
 
@@ -30,8 +32,8 @@ CortexOS is an AI-powered enterprise data platform designed to help teams monito
 | Dataset Management | Functional |
 | Pipeline Monitoring | Functional |
 | Data Quality | Functional |
-| AI Copilot | UI Prototype |
 | Alerts Management | Functional |
+| AI Copilot | UI Prototype |
 | User Management | UI Prototype |
 | Settings | UI Prototype |
 | Authentication | Planned |
@@ -39,10 +41,10 @@ CortexOS is an AI-powered enterprise data platform designed to help teams monito
 ## Current Features
 
 - **Dataset Management:** Create, view, update, and delete datasets through a REST API backed by PostgreSQL.
-- **Pipeline Monitoring:** Track pipeline status, trigger pipeline runs, retry failed executions, and review execution logs.
-- **Data Quality Dashboard:** Monitor quality scores, validation metrics, missing values, failed checks, and dataset-level quality trends.
-- **AI Copilot:** Conversational interface designed to answer questions about datasets, pipelines, alerts, and data quality.
-- **Alerts Management:** Create, view, edit, resolve, and delete enterprise alerts with severity and status tracking.
+- **Pipeline Monitoring:** Track pipeline status, trigger runs, retry failed executions, and review execution logs.
+- **Data Quality Dashboard:** Monitor quality scores, validation metrics, missing values, failed checks, and dataset-level trends.
+- **Alerts Management:** Create, view, update, resolve, and delete alerts with severity and status tracking.
+- **AI Copilot:** Conversational interface prototype for exploring datasets, pipelines, alerts, and data quality information.
 - **User Management:** Enterprise-style interface for viewing users, roles, and account status.
 - **Settings:** Interface for notification, security, integration, and appearance preferences.
 
@@ -53,10 +55,10 @@ CortexOS is an AI-powered enterprise data platform designed to help teams monito
 - RESTful API architecture
 - PostgreSQL database integration
 - Dataset and alerts CRUD workflows
-- Pipeline monitoring and execution logs
+- Pipeline triggering, retry handling, and execution logs
 - Data quality analytics and visualizations
-- AI Copilot interface
-- Professional Figma prototype and developer handoff
+- AI Copilot interface prototype
+- Figma prototype and developer handoff documentation
 
 ## Key Modules
 
@@ -71,14 +73,14 @@ CortexOS is an AI-powered enterprise data platform designed to help teams monito
 
 ## Roadmap
 
-See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for upcoming enhancements, including:
+See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for planned improvements:
 
 - JWT authentication
 - Role-based access control
 - AI backend integration
 - Deployment configuration
 - Loading, empty, and error states
-- Production-ready monitoring
+- Production monitoring
 - Additional automated data quality checks
 
 ## Getting Started
@@ -94,84 +96,3 @@ See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for u
 ```bash
 cd backend
 npm install
-```
-
-Create a `backend/.env` file:
-
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=cortexos
-```
-
-Start the backend server:
-
-```bash
-npm run dev
-```
-
-The backend runs on:
-
-```text
-http://localhost:5050
-```
-
-### Frontend Setup
-
-Open another terminal:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-The frontend usually runs on:
-
-```text
-http://localhost:5173
-```
-
-## Screenshots
-
-### Dashboard
-
-![Dashboard](screenshots/dashboard.png)
-
-### Dataset Management
-
-![Dataset Management](screenshots/datasets.png)
-
-### Pipeline Monitoring
-
-![Pipeline Monitoring](screenshots/pipelines.png)
-
-### Data Quality
-
-![Data Quality](screenshots/data-quality.png)
-
-### AI Copilot
-
-![AI Copilot](screenshots/ai-copilot.png)
-
-### Alerts Management
-
-![Alerts Management](screenshots/alerts.png)
-
-### User Management
-
-![User Management](screenshots/users.png)
-
-### Settings
-
-![Settings](screenshots/settings.png)
-
-## Project Purpose
-
-CortexOS was created as a portfolio project to demonstrate full-stack development, enterprise data platform design, REST API development, PostgreSQL integration, data quality monitoring, pipeline operations, and AI-assisted workflow concepts.
-
-## License
-
-This repository is intended for portfolio and educational purposes only. Commercial use or redistribution without permission is not permitted.
