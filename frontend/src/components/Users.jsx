@@ -417,67 +417,73 @@ function StatCard({ title, value, description }) {
 
 function getRoleStyle(role) {
   const base = {
-    display: "inline-block",
-    padding: "6px 10px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "6px 12px",
     borderRadius: "999px",
     fontSize: "12px",
     fontWeight: 700,
+    letterSpacing: "0.01em",
   };
 
   if (role === "Admin") {
     return {
       ...base,
-      background: "#EDE9FE",
-      color: "#6D28D9",
+      background: "rgba(124, 58, 237, 0.12)",
+      color: "#6d28d9",
     };
   }
 
   if (role === "Data Engineer") {
     return {
       ...base,
-      background: "#DBEAFE",
-      color: "#1D4ED8",
+      background: "rgba(37, 99, 235, 0.12)",
+      color: "#1d4ed8",
     };
   }
 
   if (role === "Data Analyst") {
     return {
       ...base,
-      background: "#FEF3C7",
-      color: "#92400E",
+      background: "rgba(245, 158, 11, 0.16)",
+      color: "#b45309",
     };
   }
 
   return {
     ...base,
-    background: "#F3F4F6",
-    color: "#4B5563",
+    background: "rgba(100, 116, 139, 0.12)",
+    color: "#475569",
   };
 }
 
 function getStatusStyle(status) {
   const base = {
-    display: "inline-block",
-    minWidth: "70px",
-    padding: "6px 10px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: "78px",
+    padding: "6px 12px",
     borderRadius: "999px",
     textAlign: "center",
     fontSize: "12px",
     fontWeight: 700,
+    letterSpacing: "0.01em",
   };
 
   if (status === "Active") {
     return {
       ...base,
-      background: "#DCFCE7",
+      background: "rgba(22, 163, 74, 0.14)",
       color: "#166534",
     };
   }
 
   return {
     ...base,
-    background: "#FEE2E2",
-    color: "#991B1B",
+    background: "rgba(239, 68, 68, 0.12)",
+    color: "#991b1b",
   };
 }
 
@@ -492,67 +498,69 @@ const styles = {
 
   title: {
     margin: 0,
-    color: "#111827",
-    fontSize: "30px",
+    color: "#0f172a",
+    fontSize: "clamp(1.5rem, 2.3vw, 1.9rem)",
+    letterSpacing: "-0.02em",
   },
 
   subtitle: {
     margin: "8px 0 0",
-    color: "#6B7280",
+    color: "#64748b",
+    fontSize: "15px",
   },
 
   statsGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "16px",
     marginBottom: "20px",
   },
 
   statCard: {
     padding: "20px",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
   },
 
   statTitle: {
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "14px",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   statValue: {
     marginTop: "8px",
-    color: "#111827",
+    color: "#0f172a",
     fontSize: "30px",
     fontWeight: 800,
   },
 
   statDescription: {
     marginTop: "4px",
-    color: "#9CA3AF",
+    color: "#94a3b8",
     fontSize: "13px",
   },
 
   formCard: {
     marginBottom: "18px",
     padding: "22px",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
   },
 
   formTitle: {
     margin: "0 0 16px",
-    color: "#111827",
+    color: "#0f172a",
+    fontSize: "1.1rem",
   },
 
   formGrid: {
     display: "grid",
-    gridTemplateColumns:
-      "minmax(180px, 1.5fr) minmax(220px, 2fr) minmax(150px, 1fr) minmax(130px, 1fr)",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "12px",
   },
 
@@ -560,35 +568,38 @@ const styles = {
     boxSizing: "border-box",
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     background: "#FFFFFF",
     fontSize: "14px",
+    color: "#0f172a",
   },
 
   formActions: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "10px",
     marginTop: "14px",
   },
 
   primaryButton: {
     border: "none",
-    borderRadius: "9px",
+    borderRadius: "10px",
     padding: "10px 16px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
     fontWeight: 700,
     cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(37, 99, 235, 0.18)",
   },
 
   secondaryButton: {
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     padding: "10px 16px",
     background: "#FFFFFF",
-    color: "#374151",
-    fontWeight: 600,
+    color: "#334155",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
@@ -596,8 +607,8 @@ const styles = {
     marginBottom: "16px",
     padding: "13px 15px",
     border: "1px solid",
-    borderRadius: "10px",
-    fontWeight: 600,
+    borderRadius: "12px",
+    fontWeight: 700,
   },
 
   toolbar: {
@@ -608,18 +619,19 @@ const styles = {
     boxSizing: "border-box",
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #D1D5DB",
+    border: "1px solid #cbd5e1",
     borderRadius: "10px",
     background: "#FFFFFF",
     fontSize: "14px",
+    color: "#0f172a",
   },
 
   tableCard: {
     overflow: "hidden",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
   },
 
   tableWrapper: {
@@ -634,18 +646,20 @@ const styles = {
 
   th: {
     padding: "14px 16px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
     textAlign: "left",
     fontSize: "13px",
+    fontWeight: 700,
   },
 
   td: {
     padding: "15px 16px",
-    borderBottom: "1px solid #E5E7EB",
-    color: "#4B5563",
+    borderBottom: "1px solid #e2e8f0",
+    color: "#475569",
     fontSize: "14px",
     verticalAlign: "middle",
+    background: "#FFFFFF",
   },
 
   userCell: {
@@ -661,57 +675,59 @@ const styles = {
     width: "42px",
     height: "42px",
     borderRadius: "12px",
-    background: "#DBEAFE",
-    color: "#1D4ED8",
+    background: "rgba(37, 99, 235, 0.12)",
+    color: "#1d4ed8",
     fontWeight: 800,
   },
 
   userName: {
-    color: "#111827",
+    color: "#0f172a",
     fontWeight: 700,
   },
 
   userEmail: {
     marginTop: "4px",
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "13px",
   },
 
   actionButtons: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "8px",
   },
 
   editButton: {
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     padding: "7px 11px",
-    background: "#DBEAFE",
-    color: "#1D4ED8",
-    fontWeight: 600,
+    background: "rgba(37, 99, 235, 0.12)",
+    color: "#1d4ed8",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
   deleteButton: {
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     padding: "7px 11px",
-    background: "#FEE2E2",
-    color: "#991B1B",
-    fontWeight: 600,
+    background: "rgba(239, 68, 68, 0.12)",
+    color: "#991b1b",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
   emptyState: {
     padding: "30px",
-    color: "#6B7280",
+    color: "#64748b",
     textAlign: "center",
+    background: "#f8fafc",
   },
 
   footer: {
     padding: "14px 18px",
-    background: "#F9FAFB",
-    color: "#6B7280",
+    background: "#f8fafc",
+    color: "#64748b",
     textAlign: "center",
     fontSize: "13px",
   },

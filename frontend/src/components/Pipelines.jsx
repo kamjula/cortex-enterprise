@@ -3,19 +3,19 @@ import { useEffect, useMemo, useState } from "react";
 function StatusBadge({ status }) {
   const colors = {
     Success: {
-      background: "#ECFDF3",
-      color: "#047857",
-      border: "#A7F3D0",
+      background: "#DCFCE7",
+      color: "#166534",
+      border: "#86EFAC",
     },
     Running: {
-      background: "#EFF6FF",
-      color: "#2563EB",
-      border: "#BFDBFE",
+      background: "#DBEAFE",
+      color: "#1D4ED8",
+      border: "#93C5FD",
     },
     Failed: {
-      background: "#FEF2F2",
-      color: "#DC2626",
-      border: "#FECACA",
+      background: "#FEE2E2",
+      color: "#B91C1C",
+      border: "#FCA5A5",
     },
   };
 
@@ -24,11 +24,15 @@ function StatusBadge({ status }) {
   return (
     <span
       style={{
-        display: "inline-block",
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
         padding: "6px 10px",
         borderRadius: "999px",
-        fontSize: "12px",
-        fontWeight: 700,
+        fontSize: "11px",
+        fontWeight: 800,
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
         background: style.background,
         color: style.color,
         border: `1px solid ${style.border}`,
@@ -560,16 +564,19 @@ const styles = {
     alignItems: "flex-end",
     gap: "20px",
     marginBottom: "20px",
+    flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
-    color: "#111827",
+    color: "#0F172A",
+    fontSize: "1.9rem",
   },
 
   subtitle: {
     margin: "8px 0 0",
     color: "#64748B",
+    fontSize: "0.95rem",
   },
 
   triggerArea: {
@@ -577,96 +584,107 @@ const styles = {
     alignItems: "flex-end",
     gap: "10px",
     flexWrap: "wrap",
+    padding: "16px",
+    border: "1px solid #E2E8F0",
+    borderRadius: "16px",
+    background: "#FFFFFF",
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
   },
 
   triggerLabel: {
     alignSelf: "center",
-    color: "#374151",
+    color: "#475569",
     fontSize: "13px",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   triggerSelect: {
     minWidth: "190px",
-    padding: "10px 12px",
+    padding: "11px 12px",
     border: "1px solid #CBD5E1",
-    borderRadius: "10px",
-    background: "#FFFFFF",
+    borderRadius: "12px",
+    background: "#F8FAFC",
+    color: "#0F172A",
     fontSize: "14px",
+    outline: "none",
   },
 
   primaryButton: {
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #4F46E5 0%, #2563EB 100%)",
     color: "#FFFFFF",
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "12px",
     padding: "11px 18px",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 700,
+    boxShadow: "0 8px 20px rgba(37, 99, 235, 0.22)",
   },
 
   searchCard: {
     marginBottom: "20px",
     padding: "18px",
     border: "1px solid #E2E8F0",
-    borderRadius: "16px",
+    borderRadius: "18px",
     background: "#FFFFFF",
-    boxShadow:
-      "0 10px 30px rgba(15,23,42,0.06)",
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
   },
 
   searchLabel: {
     display: "block",
     marginBottom: "8px",
-    color: "#374151",
+    color: "#475569",
     fontSize: "14px",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   searchInput: {
     boxSizing: "border-box",
     width: "100%",
-    padding: "12px",
+    padding: "12px 14px",
     border: "1px solid #CBD5E1",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontSize: "14px",
+    background: "#F8FAFC",
+    color: "#0F172A",
+    outline: "none",
   },
 
   successCard: {
     marginBottom: "16px",
     padding: "14px",
-    border: "1px solid #BBF7D0",
-    borderRadius: "10px",
+    border: "1px solid #86EFAC",
+    borderRadius: "12px",
     background: "#F0FDF4",
     color: "#166534",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   errorCard: {
     marginBottom: "16px",
     padding: "14px",
-    border: "1px solid #FECACA",
-    borderRadius: "10px",
+    border: "1px solid #FCA5A5",
+    borderRadius: "12px",
     background: "#FEF2F2",
     color: "#991B1B",
+    fontWeight: 700,
   },
 
   stateCard: {
     padding: "30px",
     border: "1px solid #E2E8F0",
-    borderRadius: "16px",
+    borderRadius: "18px",
     background: "#FFFFFF",
     color: "#64748B",
     textAlign: "center",
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
   },
 
   tableCard: {
     overflow: "hidden",
     border: "1px solid #E2E8F0",
-    borderRadius: "16px",
+    borderRadius: "18px",
     background: "#FFFFFF",
-    boxShadow:
-      "0 10px 30px rgba(15,23,42,0.06)",
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
   },
 
   tableWrapper: {
@@ -680,57 +698,63 @@ const styles = {
   },
 
   th: {
-    padding: "14px",
+    padding: "14px 16px",
     background: "#2563EB",
     color: "#FFFFFF",
     textAlign: "left",
-    fontSize: "13px",
+    fontSize: "0.82rem",
+    fontWeight: 700,
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
   },
 
   td: {
-    padding: "14px",
+    padding: "14px 16px",
     borderBottom: "1px solid #E2E8F0",
-    color: "#4B5563",
-    fontSize: "14px",
+    color: "#475569",
+    fontSize: "0.94rem",
+    verticalAlign: "top",
   },
 
   tdStrong: {
-    padding: "14px",
+    padding: "14px 16px",
     borderBottom: "1px solid #E2E8F0",
-    color: "#111827",
-    fontSize: "14px",
+    color: "#0F172A",
+    fontSize: "0.94rem",
     fontWeight: 700,
   },
 
   actionButtons: {
     display: "flex",
     gap: "8px",
+    flexWrap: "wrap",
   },
 
   actionButton: {
-    border: "1px solid #DBEAFE",
+    border: "1px solid #BFDBFE",
     background: "#EFF6FF",
-    color: "#2563EB",
-    borderRadius: "8px",
-    padding: "6px 10px",
+    color: "#1D4ED8",
+    borderRadius: "10px",
+    padding: "7px 12px",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   retryButton: {
-    border: "1px solid #EDE9FE",
+    border: "1px solid #DDD6FE",
     background: "#F5F3FF",
     color: "#6D28D9",
-    borderRadius: "8px",
-    padding: "6px 10px",
+    borderRadius: "10px",
+    padding: "7px 12px",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   emptyState: {
     padding: "30px",
     color: "#64748B",
     textAlign: "center",
+    background: "#F8FAFC",
   },
 
   footer: {
@@ -738,7 +762,7 @@ const styles = {
     background: "#F8FAFC",
     color: "#64748B",
     textAlign: "center",
-    fontSize: "13px",
+    fontSize: "0.82rem",
   },
 
   modalOverlay: {
@@ -756,10 +780,9 @@ const styles = {
     width: "min(720px, 100%)",
     maxHeight: "80vh",
     overflow: "hidden",
-    borderRadius: "16px",
+    borderRadius: "18px",
     background: "#FFFFFF",
-    boxShadow:
-      "0 24px 60px rgba(15, 23, 42, 0.25)",
+    boxShadow: "0 24px 60px rgba(15, 23, 42, 0.25)",
   },
 
   modalHeader: {
@@ -768,12 +791,12 @@ const styles = {
     alignItems: "center",
     gap: "16px",
     padding: "18px 20px",
-    borderBottom: "1px solid #E5E7EB",
+    borderBottom: "1px solid #E2E8F0",
   },
 
   modalTitle: {
     margin: 0,
-    color: "#111827",
+    color: "#0F172A",
   },
 
   modalSubtitle: {
@@ -783,13 +806,13 @@ const styles = {
   },
 
   closeButton: {
-    border: "1px solid #D1D5DB",
-    borderRadius: "8px",
+    border: "1px solid #CBD5E1",
+    borderRadius: "10px",
     padding: "8px 12px",
     background: "#FFFFFF",
-    color: "#374151",
+    color: "#334155",
     cursor: "pointer",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   logsLoading: {
@@ -809,7 +832,7 @@ const styles = {
     marginBottom: "12px",
     padding: "14px",
     border: "1px solid #E2E8F0",
-    borderRadius: "10px",
+    borderRadius: "12px",
     background: "#FFFFFF",
   },
 
@@ -819,6 +842,7 @@ const styles = {
     justifyContent: "space-between",
     gap: "12px",
     marginBottom: "8px",
+    flexWrap: "wrap",
   },
 
   logTimestamp: {

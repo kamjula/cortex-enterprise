@@ -33,7 +33,10 @@ function Sidebar({ activePage, onNavigate }) {
 
       <div className="sidebar-footer">
         <div className="sidebar-avatar"></div>
-        <div className="sidebar-user-name">Sravani</div>
+        <div className="sidebar-user-text">
+          <div className="sidebar-user-name">Sravani Kamjula</div>
+          <div className="sidebar-user-role">Data Platform Engineer</div>
+        </div>
       </div>
     </aside>
   );

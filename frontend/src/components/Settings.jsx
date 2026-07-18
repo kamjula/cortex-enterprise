@@ -338,58 +338,62 @@ const styles = {
     justifyContent: "space-between",
     gap: "20px",
     marginBottom: "20px",
+    flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
-    color: "#111827",
-    fontSize: "30px",
+    color: "#0f172a",
+    fontSize: "clamp(1.5rem, 2.3vw, 1.9rem)",
+    letterSpacing: "-0.02em",
   },
 
   subtitle: {
     margin: "8px 0 0",
-    color: "#6B7280",
+    color: "#64748b",
+    fontSize: "15px",
   },
 
   saveButton: {
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "12px",
     padding: "11px 18px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
     fontWeight: 700,
     cursor: "pointer",
+    boxShadow: "0 10px 20px rgba(37, 99, 235, 0.2)",
   },
 
   successCard: {
     marginBottom: "18px",
     padding: "13px 16px",
     border: "1px solid #BBF7D0",
-    borderRadius: "10px",
+    borderRadius: "12px",
     background: "#F0FDF4",
     color: "#166534",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
     gap: "20px",
   },
 
   card: {
     padding: "22px",
-    border: "1px solid #E5E7EB",
+    border: "1px solid #e2e8f0",
     borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
   },
 
   cardHeader: {
     display: "flex",
     alignItems: "flex-start",
     gap: "12px",
-    marginBottom: "10px",
+    marginBottom: "12px",
   },
 
   icon: {
@@ -399,19 +403,19 @@ const styles = {
     width: "42px",
     height: "42px",
     borderRadius: "12px",
-    background: "#EFF6FF",
+    background: "rgba(37, 99, 235, 0.10)",
     fontSize: "20px",
   },
 
   cardTitle: {
     margin: 0,
-    color: "#111827",
+    color: "#0f172a",
     fontSize: "18px",
   },
 
   cardDescription: {
     margin: "5px 0 0",
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "14px",
     lineHeight: 1.5,
   },
@@ -422,17 +426,17 @@ const styles = {
     justifyContent: "space-between",
     gap: "18px",
     padding: "16px 0",
-    borderBottom: "1px solid #E5E7EB",
+    borderBottom: "1px solid #e2e8f0",
   },
 
   settingTitle: {
-    color: "#111827",
-    fontWeight: 600,
+    color: "#0f172a",
+    fontWeight: 700,
   },
 
   settingDescription: {
     marginTop: "4px",
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "13px",
     lineHeight: 1.45,
   },
@@ -440,19 +444,20 @@ const styles = {
   toggle: {
     position: "relative",
     flexShrink: 0,
-    width: "46px",
-    height: "24px",
+    width: "48px",
+    height: "26px",
     padding: "2px",
     border: "none",
     borderRadius: "999px",
     cursor: "pointer",
     transition: "background 0.2s ease",
+    boxShadow: "inset 0 0 0 1px rgba(15, 23, 42, 0.06)",
   },
 
   toggleCircle: {
     display: "block",
-    width: "20px",
-    height: "20px",
+    width: "22px",
+    height: "22px",
     borderRadius: "50%",
     background: "#FFFFFF",
     boxShadow: "0 1px 4px rgba(0,0,0,0.2)",
@@ -466,19 +471,19 @@ const styles = {
   label: {
     display: "block",
     marginBottom: "8px",
-    color: "#374151",
+    color: "#334155",
     fontSize: "14px",
-    fontWeight: 600,
+    fontWeight: 700,
   },
 
   select: {
     boxSizing: "border-box",
     width: "100%",
     padding: "11px 13px",
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     background: "#FFFFFF",
-    color: "#111827",
+    color: "#0f172a",
     fontSize: "14px",
   },
 };

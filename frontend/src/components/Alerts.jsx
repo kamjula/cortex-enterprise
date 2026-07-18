@@ -183,61 +183,67 @@ function Alerts() {
 
   const getSeverityStyle = (severity) => {
     const base = {
-      display: "inline-block",
-      minWidth: "68px",
-      padding: "6px 10px",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: "78px",
+      padding: "6px 12px",
       borderRadius: "999px",
       textAlign: "center",
       fontSize: "12px",
       fontWeight: 700,
+      letterSpacing: "0.01em",
     };
 
     if (severity === "Critical") {
       return {
         ...base,
-        background: "#FECACA",
-        color: "#7F1D1D",
+        background: "rgba(239, 68, 68, 0.14)",
+        color: "#991b1b",
       };
     }
 
     if (severity === "High") {
       return {
         ...base,
-        background: "#FEE2E2",
-        color: "#991B1B",
+        background: "rgba(248, 113, 113, 0.16)",
+        color: "#b91c1c",
       };
     }
 
     if (severity === "Medium") {
       return {
         ...base,
-        background: "#FEF3C7",
-        color: "#92400E",
+        background: "rgba(245, 158, 11, 0.16)",
+        color: "#b45309",
       };
     }
 
     return {
       ...base,
-      background: "#DCFCE7",
+      background: "rgba(22, 163, 74, 0.14)",
       color: "#166534",
     };
   };
 
   const getStatusStyle = (status) => {
     const base = {
-      display: "inline-block",
-      minWidth: "82px",
-      padding: "6px 10px",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: "88px",
+      padding: "6px 12px",
       borderRadius: "999px",
       textAlign: "center",
       fontSize: "12px",
       fontWeight: 700,
+      letterSpacing: "0.01em",
     };
 
     if (status === "Resolved") {
       return {
         ...base,
-        background: "#DCFCE7",
+        background: "rgba(22, 163, 74, 0.14)",
         color: "#166534",
       };
     }
@@ -245,15 +251,15 @@ function Alerts() {
     if (status === "Monitoring") {
       return {
         ...base,
-        background: "#EDE9FE",
-        color: "#6D28D9",
+        background: "rgba(124, 58, 237, 0.12)",
+        color: "#6d28d9",
       };
     }
 
     return {
       ...base,
-      background: "#DBEAFE",
-      color: "#1D4ED8",
+      background: "rgba(37, 99, 235, 0.12)",
+      color: "#1d4ed8",
     };
   };
 
@@ -453,7 +459,9 @@ function Alerts() {
 
 const styles = {
   page: {
+    maxWidth: "100%",
     padding: "8px 0 32px",
+    overflowX: "hidden",
   },
 
   header: {
@@ -462,46 +470,52 @@ const styles = {
     justifyContent: "space-between",
     gap: "20px",
     marginBottom: "20px",
+    flexWrap: "wrap",
   },
 
   title: {
     margin: 0,
-    color: "#111827",
-    fontSize: "30px",
+    color: "#0f172a",
+    fontSize: "clamp(1.5rem, 2.3vw, 1.9rem)",
+    letterSpacing: "-0.02em",
   },
 
   subtitle: {
     margin: "8px 0 0",
-    color: "#6B7280",
+    color: "#64748b",
+    fontSize: "15px",
   },
 
   refreshButton: {
     border: "none",
-    borderRadius: "10px",
+    borderRadius: "12px",
     padding: "11px 18px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: "pointer",
+    boxShadow: "0 10px 20px rgba(37, 99, 235, 0.2)",
   },
 
   formCard: {
     marginBottom: "20px",
     padding: "22px",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
+    maxWidth: "100%",
   },
 
   formTitle: {
     margin: "0 0 16px",
-    color: "#111827",
+    color: "#0f172a",
+    fontSize: "1.1rem",
   },
 
   formGrid: {
     display: "grid",
-    gridTemplateColumns: "2fr 1fr 1fr",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "12px",
   },
 
@@ -509,10 +523,11 @@ const styles = {
     boxSizing: "border-box",
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     background: "#FFFFFF",
     fontSize: "14px",
+    color: "#0f172a",
   },
 
   textarea: {
@@ -520,36 +535,39 @@ const styles = {
     width: "100%",
     marginTop: "12px",
     padding: "12px 14px",
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     resize: "vertical",
     fontFamily: "inherit",
     fontSize: "14px",
+    color: "#0f172a",
   },
 
   formActions: {
     display: "flex",
+    flexWrap: "wrap",
     gap: "10px",
     marginTop: "14px",
   },
 
   primaryButton: {
     border: "none",
-    borderRadius: "9px",
+    borderRadius: "10px",
     padding: "10px 16px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: "pointer",
+    boxShadow: "0 8px 18px rgba(37, 99, 235, 0.18)",
   },
 
   secondaryButton: {
-    border: "1px solid #D1D5DB",
-    borderRadius: "9px",
+    border: "1px solid #cbd5e1",
+    borderRadius: "10px",
     padding: "10px 16px",
     background: "#FFFFFF",
-    color: "#374151",
-    fontWeight: 600,
+    color: "#334155",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
@@ -561,119 +579,133 @@ const styles = {
     boxSizing: "border-box",
     width: "100%",
     padding: "12px 14px",
-    border: "1px solid #D1D5DB",
+    border: "1px solid #cbd5e1",
     borderRadius: "10px",
     background: "#FFFFFF",
     fontSize: "14px",
+    color: "#0f172a",
   },
 
   tableCard: {
     overflow: "hidden",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
+    maxWidth: "100%",
   },
 
   tableWrapper: {
     overflowX: "auto",
+    WebkitOverflowScrolling: "touch",
+    maxWidth: "100%",
   },
 
   table: {
     width: "100%",
-    minWidth: "1000px",
+    minWidth: "980px",
     borderCollapse: "collapse",
   },
 
   th: {
     padding: "14px 16px",
-    background: "#2563EB",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
     textAlign: "left",
     fontSize: "13px",
+    fontWeight: 700,
   },
 
   td: {
     padding: "15px 16px",
-    borderBottom: "1px solid #E5E7EB",
-    color: "#4B5563",
+    borderBottom: "1px solid #e2e8f0",
+    color: "#475569",
     fontSize: "14px",
     verticalAlign: "top",
+    background: "#FFFFFF",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
   },
 
   tdStrong: {
     padding: "15px 16px",
-    borderBottom: "1px solid #E5E7EB",
-    color: "#111827",
+    borderBottom: "1px solid #e2e8f0",
+    color: "#0f172a",
     fontSize: "14px",
-    fontWeight: 600,
+    fontWeight: 700,
     verticalAlign: "top",
+    background: "#FFFFFF",
+    overflowWrap: "anywhere",
+    wordBreak: "break-word",
   },
 
   actionButtons: {
     display: "flex",
     flexWrap: "wrap",
     gap: "7px",
+    alignItems: "flex-start",
   },
 
   editButton: {
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     padding: "7px 10px",
-    background: "#DBEAFE",
-    color: "#1D4ED8",
-    fontWeight: 600,
+    background: "rgba(37, 99, 235, 0.12)",
+    color: "#1d4ed8",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
   resolveButton: {
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     padding: "7px 10px",
-    background: "#DCFCE7",
+    background: "rgba(22, 163, 74, 0.14)",
     color: "#166534",
-    fontWeight: 600,
+    fontWeight: 700,
     cursor: "pointer",
   },
 
   deleteButton: {
     border: "none",
-    borderRadius: "7px",
+    borderRadius: "8px",
     padding: "7px 10px",
-    background: "#FEE2E2",
-    color: "#991B1B",
-    fontWeight: 600,
+    background: "rgba(239, 68, 68, 0.12)",
+    color: "#991b1b",
+    fontWeight: 700,
     cursor: "pointer",
   },
 
   errorCard: {
     marginBottom: "16px",
     padding: "14px",
-    border: "1px solid #FECACA",
-    borderRadius: "10px",
-    background: "#FEF2F2",
-    color: "#991B1B",
+    border: "1px solid #fecaca",
+    borderRadius: "12px",
+    background: "#fef2f2",
+    color: "#991b1b",
   },
 
   stateCard: {
     padding: "30px",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     background: "#FFFFFF",
-    color: "#6B7280",
+    color: "#64748b",
     textAlign: "center",
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.04)",
   },
 
   emptyState: {
     padding: "30px",
-    color: "#6B7280",
+    color: "#64748b",
     textAlign: "center",
+    background: "#f8fafc",
   },
 
   footer: {
     padding: "14px 18px",
-    background: "#F9FAFB",
-    color: "#6B7280",
+    background: "#f8fafc",
+    color: "#64748b",
     textAlign: "center",
     fontSize: "13px",
   },

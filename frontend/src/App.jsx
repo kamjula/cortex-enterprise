@@ -86,6 +86,7 @@ function App() {
         display: "flex",
         minHeight: "100vh",
         background: "#F8FAFC",
+        color: "#0F172A",
         fontFamily: "Inter, sans-serif",
       }}
     >
@@ -97,8 +98,10 @@ function App() {
       <main
         style={{
           flex: 1,
-          padding: "30px",
+          minWidth: 0,
+          padding: "clamp(18px, 2vw, 32px)",
           overflowY: "auto",
+          background: "#F8FAFC",
         }}
       >
         <Header />

@@ -48,19 +48,22 @@ function DataQuality() {
 
   const getStatusStyle = (status) => {
     const baseStyle = {
-      display: "inline-block",
-      minWidth: "72px",
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: "80px",
       padding: "6px 12px",
       borderRadius: "999px",
       textAlign: "center",
       fontSize: "12px",
       fontWeight: 700,
+      letterSpacing: "0.01em",
     };
 
     if (status === "Healthy") {
       return {
         ...baseStyle,
-        background: "#DCFCE7",
+        background: "rgba(22, 163, 74, 0.12)",
         color: "#166534",
       };
     }
@@ -68,22 +71,52 @@ function DataQuality() {
     if (status === "Warning") {
       return {
         ...baseStyle,
-        background: "#FEF3C7",
+        background: "rgba(245, 158, 11, 0.14)",
         color: "#92400E",
       };
     }
 
     return {
       ...baseStyle,
-      background: "#FEE2E2",
+      background: "rgba(239, 68, 68, 0.12)",
       color: "#991B1B",
+    };
+  };
+
+  const getScoreStyle = (score) => {
+    const numericScore = Number(score || 0);
+    let background = "rgba(79, 70, 229, 0.12)";
+    let color = "#3730a3";
+
+    if (numericScore >= 90) {
+      background = "rgba(22, 163, 74, 0.14)";
+      color = "#166534";
+    } else if (numericScore >= 75) {
+      background = "rgba(245, 158, 11, 0.16)";
+      color = "#b45309";
+    } else {
+      background = "rgba(239, 68, 68, 0.13)";
+      color = "#b91c1c";
+    }
+
+    return {
+      display: "inline-flex",
+      alignItems: "center",
+      justifyContent: "center",
+      minWidth: "82px",
+      padding: "6px 12px",
+      borderRadius: "999px",
+      fontSize: "13px",
+      fontWeight: 700,
+      background,
+      color,
     };
   };
 
   return (
     <div style={styles.page}>
       <div style={styles.header}>
-        <div>
+        <div style={styles.headerText}>
           <h2 style={styles.title}>Data Quality Dashboard</h2>
           <p style={styles.subtitle}>
             Monitor enterprise data quality in real time.
@@ -104,13 +137,15 @@ function DataQuality() {
       </div>
 
       <div style={styles.toolbar}>
-        <input
-          type="text"
-          placeholder="Search by dataset or status..."
-          value={searchTerm}
-          onChange={(event) => setSearchTerm(event.target.value)}
-          style={styles.searchInput}
-        />
+        <div style={styles.searchCard}>
+          <input
+            type="text"
+            placeholder="Search by dataset or status..."
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            style={styles.searchInput}
+          />
+        </div>
       </div>
 
       {loading && (
@@ -156,7 +191,9 @@ function DataQuality() {
                     </td>
 
                     <td style={styles.td}>
-                      {Number(item.score || 0).toFixed(2)}%
+                      <span style={getScoreStyle(item.score)}>
+                        {Number(item.score || 0).toFixed(2)}%
+                      </span>
                     </td>
 
                     <td style={styles.td}>
@@ -208,51 +245,68 @@ const styles = {
     justifyContent: "space-between",
     gap: "20px",
     marginBottom: "20px",
+    flexWrap: "wrap",
+  },
+
+  headerText: {
+    minWidth: 0,
+    flex: 1,
   },
 
   title: {
     margin: 0,
-    fontSize: "30px",
-    color: "#111827",
+    fontSize: "clamp(1.5rem, 2.3vw, 1.9rem)",
+    color: "#0f172a",
+    letterSpacing: "-0.02em",
   },
 
   subtitle: {
     margin: "8px 0 0",
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "15px",
   },
 
   refreshButton: {
     border: "none",
-    borderRadius: "10px",
-    background: "#2563EB",
+    borderRadius: "12px",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
     color: "#FFFFFF",
-    padding: "11px 20px",
-    fontWeight: 600,
+    padding: "11px 18px",
+    fontWeight: 700,
     cursor: "pointer",
+    boxShadow: "0 10px 20px rgba(37, 99, 235, 0.2)",
   },
 
   toolbar: {
     marginBottom: "18px",
   },
 
+  searchCard: {
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: "14px",
+    padding: "10px",
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.04)",
+  },
+
   searchInput: {
     width: "100%",
     boxSizing: "border-box",
-    border: "1px solid #D1D5DB",
+    border: "1px solid #cbd5e1",
     borderRadius: "10px",
     padding: "13px 16px",
     fontSize: "14px",
     outline: "none",
-    background: "#FFFFFF",
+    background: "#ffffff",
+    color: "#0f172a",
   },
 
   tableCard: {
-    background: "#FFFFFF",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    background: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     overflow: "hidden",
-    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.05)",
+    boxShadow: "0 14px 30px rgba(15, 23, 42, 0.06)",
   },
 
   tableWrapper: {
@@ -266,8 +320,8 @@ const styles = {
   },
 
   th: {
-    background: "#2563EB",
-    color: "#FFFFFF",
+    background: "linear-gradient(135deg, #2563eb 0%, #4f46e5 100%)",
+    color: "#ffffff",
     padding: "15px 18px",
     textAlign: "left",
     fontSize: "13px",
@@ -276,63 +330,69 @@ const styles = {
 
   td: {
     padding: "16px 18px",
-    borderBottom: "1px solid #E5E7EB",
-    color: "#4B5563",
+    borderBottom: "1px solid #e2e8f0",
+    color: "#475569",
     fontSize: "14px",
+    background: "#ffffff",
   },
 
   tdStrong: {
     padding: "16px 18px",
-    borderBottom: "1px solid #E5E7EB",
-    color: "#111827",
+    borderBottom: "1px solid #e2e8f0",
+    color: "#0f172a",
     fontSize: "14px",
-    fontWeight: 600,
+    fontWeight: 700,
+    background: "#ffffff",
   },
 
   footer: {
     padding: "14px 18px",
     textAlign: "center",
-    color: "#6B7280",
+    color: "#64748b",
     fontSize: "13px",
-    background: "#F9FAFB",
+    background: "#f8fafc",
   },
 
   stateCard: {
     padding: "30px",
-    border: "1px solid #E5E7EB",
-    borderRadius: "14px",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
     textAlign: "center",
-    color: "#6B7280",
-    background: "#FFFFFF",
+    color: "#64748b",
+    background: "#ffffff",
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.04)",
   },
 
   errorCard: {
     padding: "24px",
-    border: "1px solid #FECACA",
-    borderRadius: "14px",
+    border: "1px solid #fecaca",
+    borderRadius: "16px",
     textAlign: "center",
-    background: "#FEF2F2",
+    background: "#fef2f2",
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.04)",
   },
 
   errorText: {
     margin: 0,
-    color: "#991B1B",
+    color: "#991b1b",
   },
 
   retryButton: {
     marginTop: "14px",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "10px",
     padding: "9px 16px",
-    background: "#DC2626",
-    color: "#FFFFFF",
+    background: "#dc2626",
+    color: "#ffffff",
     cursor: "pointer",
+    fontWeight: 700,
   },
 
   emptyState: {
     padding: "32px",
     textAlign: "center",
-    color: "#6B7280",
+    color: "#64748b",
+    background: "#f8fafc",
   },
 };
 
