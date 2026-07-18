@@ -96,3 +96,85 @@ See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for p
 ```bash
 cd backend
 npm install
+```
+
+Create a `backend/.env` file:
+
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_NAME=cortexos
+```
+
+Start the backend server:
+
+```bash
+npm run dev
+```
+
+
+The backend runs on:
+
+```text
+http://localhost:5050
+```
+
+### Frontend Setup
+
+Open a separate terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend runs on:
+
+```text
+http://localhost:5173
+```
+
+## Screenshots
+
+### Dashboard
+
+![Dashboard](screenshots/dashboard.png)
+
+### Dataset Management
+
+![Dataset Management](screenshots/datasets.png)
+
+### Pipeline Monitoring
+
+![Pipeline Monitoring](screenshots/pipelines.png)
+
+### Data Quality
+
+![Data Quality](screenshots/data-quality.png)
+
+### AI Copilot
+
+![AI Copilot](screenshots/ai-copilot.png)
+
+### Alerts Management
+
+![Alerts Management](screenshots/alerts.png)
+
+### User Management
+
+![User Management](screenshots/users.png)
+
+### Settings
+
+![Settings](screenshots/settings.png)
+
+## Project Purpose
+
+CortexOS was created as a portfolio project to demonstrate full-stack development, REST API design, PostgreSQL integration, enterprise data-platform workflows, pipeline monitoring, data-quality operations, and AI-assisted interface concepts.
+
+## License
+
+This repository is intended for portfolio and educational purposes only. Commercial use or redistribution without permission is not permitted.
