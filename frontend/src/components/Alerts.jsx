@@ -21,7 +21,7 @@ function Alerts() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:5050/alerts");
+      const response = await fetch("https://cortex-enterprise.onrender.com/alerts");
 
       if (!response.ok) {
         throw new Error("Failed to load alerts");
@@ -83,8 +83,8 @@ function Alerts() {
       setError("");
 
       const url = editingId
-        ? `http://localhost:5050/alerts/${editingId}`
-        : "http://localhost:5050/alerts";
+        ? `https://cortex-enterprise.onrender.com/alerts/${editingId}`
+        : "https://cortex-enterprise.onrender.com/alerts";
 
       const response = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -130,7 +130,7 @@ function Alerts() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:5050/alerts/${id}/resolve`,
+        `https://cortex-enterprise.onrender.com/alerts/${id}/resolve`,
         {
           method: "PATCH",
         }
@@ -160,7 +160,7 @@ function Alerts() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:5050/alerts/${id}`,
+        `https://cortex-enterprise.onrender.com/alerts/${id}`,
         {
           method: "DELETE",
         }

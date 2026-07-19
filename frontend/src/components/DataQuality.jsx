@@ -11,7 +11,7 @@ function DataQuality() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:5050/data-quality");
+      const response = await fetch("https://cortex-enterprise.onrender.com/data-quality");
 
       if (!response.ok) {
         throw new Error("Failed to load data quality checks");

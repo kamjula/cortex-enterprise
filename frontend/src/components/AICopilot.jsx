@@ -38,7 +38,7 @@ function AICopilot() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("http://localhost:5050/copilot");
+      const response = await fetch("https://cortex-enterprise.onrender.com/copilot");
 
       if (!response.ok) {
         throw new Error("Failed to load Copilot history");

@@ -27,7 +27,7 @@ function App() {
   const [dashboardError, setDashboardError] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:5050/dashboard")
+    fetch("https://cortex-enterprise.onrender.com/dashboard")
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Dashboard request failed: ${res.status}`);
