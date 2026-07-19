@@ -6,7 +6,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?logo=postgresql&logoColor=white)
 ![Status](https://img.shields.io/badge/status-in%20development-yellow)
 
-[GitHub Repository](https://github.com/kamjula/cortex-enterprise) • Live Demo: Coming Soon
+[GitHub Repository](https://github.com/kamjula/cortex-enterprise) • [Live Demo](https://cortexos-frontend.onrender.com)
 
 > Enterprise Data Operations Platform with AI-Assisted Workflows
 >
