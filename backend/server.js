@@ -56,6 +56,129 @@ app.get("/datasets", async (req, res) => {
   }
 });
 
+
+app.post("/datasets", async (req, res) => {
+  try {
+    const { name, owner, records, status = "Healthy" } = req.body;
+
+    const allowedStatuses = ["Healthy", "Warning", "Failed"];
+    const recordCount = Number(records);
+
+    if (!name?.trim() || !owner?.trim()) {
+      return res.status(400).json({
+        error: "Name and owner are required",
+      });
+    }
+
+    if (!Number.isInteger(recordCount) || recordCount < 0) {
+      return res.status(400).json({
+        error: "Records must be a non-negative integer",
+      });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid dataset status",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        INSERT INTO datasets (name, owner, records, status)
+        VALUES ($1, $2, $3, $4)
+        RETURNING *
+      `,
+      [name.trim(), owner.trim(), recordCount, status]
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error("CREATE DATASET ERROR:", err.message);
+    res.status(500).json({ error: "Could not create dataset" });
+  }
+});
+
+app.put("/datasets/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, owner, records, status } = req.body;
+
+    const allowedStatuses = ["Healthy", "Warning", "Failed"];
+    const recordCount = Number(records);
+
+    if (!name?.trim() || !owner?.trim()) {
+      return res.status(400).json({
+        error: "Name and owner are required",
+      });
+    }
+
+    if (!Number.isInteger(recordCount) || recordCount < 0) {
+      return res.status(400).json({
+        error: "Records must be a non-negative integer",
+      });
+    }
+
+    if (!allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        error: "Invalid dataset status",
+      });
+    }
+
+    const result = await pool.query(
+      `
+        UPDATE datasets
+        SET name = $1,
+            owner = $2,
+            records = $3,
+            status = $4
+        WHERE id = $5
+        RETURNING *
+      `,
+      [name.trim(), owner.trim(), recordCount, status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Dataset not found",
+      });
+    }
+
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error("UPDATE DATASET ERROR:", err.message);
+    res.status(500).json({ error: "Could not update dataset" });
+  }
+});
+
+app.delete("/datasets/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await pool.query(
+      `
+        DELETE FROM datasets
+        WHERE id = $1
+        RETURNING *
+      `,
+      [id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        error: "Dataset not found",
+      });
+    }
+
+    res.json({
+      message: "Dataset deleted successfully",
+      dataset: result.rows[0],
+    });
+  } catch (err) {
+    console.error("DELETE DATASET ERROR:", err.message);
+    res.status(500).json({ error: "Could not delete dataset" });
+  }
+});
+
 app.get("/pipelines", async (req, res) => {
   try {
     const result = await pool.query(
