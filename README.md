@@ -79,7 +79,7 @@ Status definitions: Functional features are connected to the Express API and Pos
 
 ## Current Features
 
-- **Dataset Management:** Dataset viewing and monitoring are functional. Persistent create, update, and delete backend routes are not yet implemented.
+- **Dataset Management:** Create, view, update, and delete datasets through REST API routes backed by PostgreSQL.
 - **Pipeline Monitoring:** Track pipeline status, trigger runs, retry failed executions, and review execution logs.
 - **Data Quality Dashboard:** Monitor quality scores, validation metrics, missing values, failed checks, and dataset-level trends.
 - **Alerts Management:** Create, view, update, resolve, and delete alerts with severity and status tracking.
