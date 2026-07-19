@@ -67,7 +67,8 @@ function AICopilot() {
       setHistory(formattedHistory);
     } catch (err) {
       console.error("Copilot fetch error:", err);
-      setError(err.message || "Could not load Copilot history");
+      setHistory([]);
+      setError("AI Copilot backend integration coming soon.");
     } finally {
       setLoading(false);
     }
