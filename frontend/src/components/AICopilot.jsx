@@ -719,10 +719,10 @@ const styles = {
   errorCard: {
     marginBottom: "16px",
     padding: "12px 14px",
-    border: "1px solid #FCA5A5",
+    border: "1px solid #BFDBFE",
     borderRadius: "12px",
-    background: "#FEF2F2",
-    color: "#B91C1C",
+    background: "#EFF6FF",
+    color: "#1D4ED8",
   },
 
   inputArea: {
