@@ -1,4 +1,4 @@
-import "./Sidebar.css";
+import "./sidebar.css";
 
 const menuItems = [
   "Dashboard",
