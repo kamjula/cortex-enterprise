@@ -189,7 +189,7 @@ Vite starts on the first available local port, normally `http://localhost:5173`.
 Sravani Kamjula
 
 - GitHub: [@kamjula](https://github.com/kamjula)
-- Portfolio: [sravanikamjula.netlify.app](https://sravanikamjula.netlify.app)
+- Portfolio: [sravaniportfoli.netlify.app](https://sravaniportfoli.netlify.app/)
 
 ## License
 
