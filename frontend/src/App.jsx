@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Users from "./components/Users";
-import Sidebar from "./components/Sidebar";
+import Sidebar from "./components/sidebar";
 import Header from "./components/Header";
 import SearchBar from "./components/SearchBar";
 import StatsCards from "./components/StatsCards";
