@@ -62,7 +62,7 @@ function Pipelines() {
       setError("");
 
       const response = await fetch(
-        "http://localhost:5050/pipelines"
+        "https://cortex-enterprise.onrender.com/pipelines"
       );
 
       if (!response.ok) {
@@ -135,7 +135,7 @@ function Pipelines() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `http://localhost:5050/pipelines/${selectedPipelineId}/trigger`,
+        `https://cortex-enterprise.onrender.com/pipelines/${selectedPipelineId}/trigger`,
         {
           method: "PATCH",
         }
@@ -172,7 +172,7 @@ function Pipelines() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `http://localhost:5050/pipelines/${pipeline.id}/retry`,
+        `https://cortex-enterprise.onrender.com/pipelines/${pipeline.id}/retry`,
         {
           method: "PATCH",
         }
@@ -208,7 +208,7 @@ function Pipelines() {
       setSelectedLogData(null);
 
       const response = await fetch(
-        `http://localhost:5050/pipelines/${pipeline.id}/logs`
+        `https://cortex-enterprise.onrender.com/pipelines/${pipeline.id}/logs`
       );
 
       const result = await response.json();

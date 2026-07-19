@@ -13,7 +13,7 @@ function Datasets() {
     try {
       setError("");
 
-      const response = await fetch("http://localhost:5050/datasets");
+      const response = await fetch("https://cortex-enterprise.onrender.com/datasets");
 
       if (!response.ok) {
         throw new Error("Failed to load datasets");
@@ -57,8 +57,8 @@ function Datasets() {
 
       const response = await fetch(
         editingId
-          ? `http://localhost:5050/datasets/${editingId}`
-          : "http://localhost:5050/datasets",
+          ? `https://cortex-enterprise.onrender.com/datasets/${editingId}`
+          : "https://cortex-enterprise.onrender.com/datasets",
         {
           method: editingId ? "PUT" : "POST",
           headers: {
@@ -97,7 +97,7 @@ function Datasets() {
       setError("");
 
       const response = await fetch(
-        `http://localhost:5050/datasets/${id}`,
+        `https://cortex-enterprise.onrender.com/datasets/${id}`,
         {
           method: "DELETE",
         }
