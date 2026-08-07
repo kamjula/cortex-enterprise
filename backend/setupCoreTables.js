@@ -26,6 +26,15 @@ async function setupCoreTables() {
       );
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS ai_chat (
+        id SERIAL PRIMARY KEY,
+        role VARCHAR(20) NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     const datasetCount = await pool.query(
       "SELECT COUNT(*) AS count FROM datasets"
     );

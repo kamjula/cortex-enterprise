@@ -8,23 +8,6 @@ const suggestedQuestions = [
   "Which dataset has the lowest quality score?",
 ];
 
-const sampleResponses = {
-  dataset:
-    "Customer Data, Sales Data, Inventory Data, and Finance Data are currently available in CortexOS. Customer Data requires the most attention because it contains missing values.",
-
-  quality:
-    "Customer Data has the lowest quality score. The main issues are missing values, duplicate records, and failed validation rules.",
-
-  pipeline:
-    "The Finance ETL pipeline recently reported a failure. Other pipelines are currently operating normally.",
-
-  alert:
-    "There is one active alert: API Timeout. Its severity is High and its current status is Open.",
-
-  default:
-    "I can help analyze datasets, pipelines, data quality checks, and platform alerts. Ask a question about the CortexOS environment.",
-};
-
 function AICopilot() {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
@@ -48,21 +31,11 @@ function AICopilot() {
       const data = await response.json();
 
       const formattedHistory = Array.isArray(data)
-        ? data
-            .map((item) => [
-              {
-                id: `user-${item.id}`,
-                role: "user",
-                content: item.question,
-              },
-              {
-                id: `assistant-${item.id}`,
-                role: "assistant",
-                content: item.answer,
-              },
-            ])
-            .flat()
-            .reverse()
+        ? data.map((item) => ({
+            id: item.id,
+            role: item.role,
+            content: item.content,
+          }))
         : [];
 
       setHistory(formattedHistory);
@@ -92,44 +65,6 @@ function AICopilot() {
       .reverse();
   }, [history]);
 
-  const createAIResponse = (question) => {
-    const normalizedQuestion = question.toLowerCase();
-
-    if (
-      normalizedQuestion.includes("quality") ||
-      normalizedQuestion.includes("lowest score") ||
-      normalizedQuestion.includes("missing") ||
-      normalizedQuestion.includes("duplicate")
-    ) {
-      return sampleResponses.quality;
-    }
-
-    if (
-      normalizedQuestion.includes("pipeline") ||
-      normalizedQuestion.includes("etl") ||
-      normalizedQuestion.includes("failure")
-    ) {
-      return sampleResponses.pipeline;
-    }
-
-    if (
-      normalizedQuestion.includes("alert") ||
-      normalizedQuestion.includes("open") ||
-      normalizedQuestion.includes("timeout")
-    ) {
-      return sampleResponses.alert;
-    }
-
-    if (
-      normalizedQuestion.includes("dataset") ||
-      normalizedQuestion.includes("records")
-    ) {
-      return sampleResponses.dataset;
-    }
-
-    return sampleResponses.default;
-  };
-
   const sendMessage = async (questionFromSuggestion) => {
     const question = (
       questionFromSuggestion || input
@@ -150,18 +85,36 @@ function AICopilot() {
     setSending(true);
     setError("");
 
-    await new Promise((resolve) => {
-      setTimeout(resolve, 700);
-    });
+    try {
+      const response = await fetch(buildApiUrl("/copilot/message"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt: question }),
+      });
 
-    const aiMessage = {
-      id: `assistant-${Date.now()}`,
-      role: "assistant",
-      content: createAIResponse(question),
-    };
+      const result = await response.json().catch(() => null);
 
-    setHistory((current) => [...current, aiMessage]);
-    setSending(false);
+      if (!response.ok) {
+        throw new Error(
+          result?.error || "Unable to get a response from CortexOS AI Copilot."
+        );
+      }
+
+      const aiMessage = {
+        id: `assistant-${Date.now()}`,
+        role: "assistant",
+        content: result?.reply || "I couldn't generate a response right now.",
+      };
+
+      setHistory((current) => [...current, aiMessage]);
+    } catch (err) {
+      console.error("Copilot send error:", err);
+      setError(err.message || "Unable to reach the Copilot service.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const clearChat = () => {
