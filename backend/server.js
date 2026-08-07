@@ -1,10 +1,15 @@
 const express = require("express");
 const cors = require("cors");
+const OpenAI = require("openai");
 require("dotenv").config();
 
 const pool = require("./db");
 
 const app = express();
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null;
+const systemPrompt = `You are CortexOS AI Copilot, a helpful enterprise data operations assistant. Answer questions clearly and concisely. Do not invent operational facts, database contents, or system access you have not been given. If the needed context is missing, say so and ask for the relevant details.`;
 
 app.use(cors());
 app.use(express.json());
@@ -306,13 +311,64 @@ app.patch("/pipelines/:id/retry", async (req, res) => {
 app.get("/copilot", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM ai_chat ORDER BY id DESC"
+      "SELECT id, role, content, created_at FROM ai_chat ORDER BY created_at ASC, id ASC"
     );
 
     res.json(result.rows);
   } catch (err) {
     console.error("COPILOT ERROR:", err.message);
     res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/copilot/message", async (req, res) => {
+  try {
+    const { prompt } = req.body;
+
+    if (typeof prompt !== "string" || !prompt.trim()) {
+      return res.status(400).json({
+        error: "A prompt is required.",
+      });
+    }
+
+    const normalizedPrompt = prompt.trim();
+
+    await pool.query(
+      "INSERT INTO ai_chat (role, content) VALUES ($1, $2)",
+      ["user", normalizedPrompt]
+    );
+
+    if (!openai) {
+      return res.status(503).json({
+        error: "AI Copilot is not configured yet. Add OPENAI_API_KEY on the server.",
+      });
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: normalizedPrompt },
+      ],
+      temperature: 0.2,
+      max_tokens: 250,
+    });
+
+    const assistantReply =
+      completion.choices?.[0]?.message?.content?.trim() ||
+      "I couldn't generate a response right now.";
+
+    await pool.query(
+      "INSERT INTO ai_chat (role, content) VALUES ($1, $2)",
+      ["assistant", assistantReply]
+    );
+
+    res.json({ reply: assistantReply });
+  } catch (err) {
+    console.error("COPILOT MESSAGE ERROR:", err.message);
+    res.status(500).json({
+      error: "Unable to process your request right now.",
+    });
   }
 });
 
