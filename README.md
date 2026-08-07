@@ -6,7 +6,7 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?logo=postgresql&logoColor=white)
 ![Status](https://img.shields.io/badge/status-in%20development-yellow)
 
-[GitHub Repository](https://github.com/kamjula/cortex-enterprise) • [Live Demo](https://cortexos-frontend.onrender.com)
+[GitHub Repository](https://github.com/kamjula/cortex-enterprise) • [Live Demo](https://cortex-enterprise-sigma.vercel.app)
 
 > Enterprise Data Operations Platform with AI-Assisted Workflows
 
@@ -23,27 +23,35 @@ Built with React, Node.js, Express, and PostgreSQL, the platform combines functi
 ## Screenshots
 
 **Dashboard**
+
 ![Dashboard](screenshots/dashboard.png)
 
 **Dataset Management**
+
 ![Dataset Management](screenshots/datasets.png)
 
 **Pipeline Monitoring**
+
 ![Pipeline Monitoring](screenshots/pipelines.png)
 
 **Data Quality**
+
 ![Data Quality](screenshots/data-quality.png)
 
 **Alerts Management**
+
 ![Alerts Management](screenshots/alerts.png)
 
 **AI Copilot (UI Prototype)**
+
 ![AI Copilot](screenshots/ai-copilot.png)
 
 **User Management (UI Prototype)**
+
 ![User Management](screenshots/users.png)
 
 **Settings (UI Prototype)**
+
 ![Settings](screenshots/settings.png)
 
 ## Tech Stack
@@ -54,6 +62,7 @@ Built with React, Node.js, Express, and PostgreSQL, the platform combines functi
 - **Design & Development Tools:** Git, GitHub, VS Code, Figma
 
 ## Architecture
+
 | Layer | Technology |
 |---|---|
 | Frontend | React + Vite |
@@ -85,11 +94,13 @@ Status definitions: Functional features are connected to the Express API and Pos
 - **Alerts Management:** Create, view, update, resolve, and delete alerts with severity and status tracking.
 
 ## UI Prototypes
+
 - **AI Copilot:** Conversational interface prototype for exploring datasets, pipelines, alerts, and data quality information.
 - **User Management:** Enterprise-style interface for viewing users, roles, and account status.
 - **Settings:** Interface for notification, security, integration, and appearance preferences.
 
 ## Highlights
+
 - Enterprise dashboard with 8 integrated modules
 - Responsive modern user interface
 - RESTful API architecture
@@ -102,10 +113,11 @@ Status definitions: Functional features are connected to the Express API and Pos
 ## Demo Data
 
 The `alerts` and `data_quality_checks` tables are populated using setup scripts included in this repository:
-- `backend/setupAlerts.js` — creates the `alerts` table and inserts sample records (e.g., a pipeline failure alert, a data quality warning).
-- `backend/setupDataQuality.js` — creates the `data_quality_checks` table and inserts sample records (e.g., Sales Data, Customer Data, Finance Data, Inventory Data).
 
-All seeded values are synthetic and used only to demonstrate functionality — no real company or personal data is included.
+- `backend/setupAlerts.js` — creates the `alerts` table and inserts sample records such as a pipeline failure alert and a data quality warning.
+- `backend/setupDataQuality.js` — creates the `data_quality_checks` table and inserts sample records such as Sales Data, Customer Data, Finance Data, and Inventory Data.
+
+All seeded values are synthetic and used only to demonstrate functionality. No real company or personal data is included.
 
 ## Current Limitations
 
@@ -114,99 +126,13 @@ All seeded values are synthetic and used only to demonstrate functionality — n
 - No automated test suite is included yet.
 
 ## Live Deployment
-- Frontend (Vercel): https://your-vercel-app-url.vercel.app
-- Backend API (Render): https://cortex-enterprise.onrender.com
 
-The frontend is being migrated to Vercel while the backend API and PostgreSQL remain on Render. Set the frontend environment variable VITE_API_URL to the Render backend URL for production deployments.
+- **Frontend (Vercel):** https://cortex-enterprise-sigma.vercel.app
+- **Backend API (Render):** https://cortex-enterprise.onrender.com
 
-## Roadmap
+The frontend is deployed on Vercel while the backend API and PostgreSQL remain hosted separately.
 
-- See the [open issues](https://github.com/kamjula/cortex-enterprise/issues) for planned improvements:
-
-- JWT authentication
-- Role-based access control
-- AI backend integration
-- Deployment configuration
-- Loading, empty, and error states
-- Production monitoring
-- Additional automated data quality checks
-
-## Getting Started
-
-### Prerequisites
-- Node.js v18 or later
-- PostgreSQL running locally or remotely
-- npm
-
-### Clone the Repository
-
-```bash
-git clone https://github.com/kamjula/cortex-enterprise.git
-cd cortex-enterprise
-```
-
-### Configure the Backend
-
-```bash
-cd backend
-cp .env.example .env
-```
-
-Update `.env` with your PostgreSQL credentials:
+For production deployments, the frontend uses the following environment variable:
 
 ```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=cortexos
-```
-
-### Install and Run the Backend
-
-```bash
-npm install
-node setupCoreTables.js
-node setupAlerts.js
-node setupDataQuality.js
-npm run dev
-```
-
-The backend runs at `http://localhost:5050`.
-
-### Install and Run the Frontend
-
-```bash
-cd ../frontend
-cp .env.example .env
-npm install
-npm run dev
-```
-
-Set the frontend environment variable in your local `.env` file:
-
-```env
-VITE_API_URL=http://localhost:5050
-```
-
-Vite starts on the first available local port, normally `http://localhost:5173`.
-
-### Deploy the Frontend to Vercel
-
-1. Connect the Vercel project to the `frontend` directory.
-2. Set the production environment variable:
-   - `VITE_API_URL=https://cortex-enterprise.onrender.com`
-3. Deploy the project from the `frontend` folder.
-
-The backend remains on Render and continues to use the existing API and PostgreSQL configuration.
-
-## Author
-
-Sravani Kamjula
-
-- GitHub: [@kamjula](https://github.com/kamjula)
-- Portfolio: [sravaniportfoli.netlify.app](https://sravaniportfoli.netlify.app/)
-
-## License
-
-This repository is intended for portfolio and educational purposes only. Commercial use or redistribution without permission is not permitted.
+VITE_API_URL=https://cortex-enterprise.onrender.com
