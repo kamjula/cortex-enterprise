@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 function DataQuality() {
   const [checks, setChecks] = useState([]);
@@ -11,7 +12,7 @@ function DataQuality() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("https://cortex-enterprise.onrender.com/data-quality");
+      const response = await fetch(buildApiUrl("/data-quality"));
 
       if (!response.ok) {
         throw new Error("Failed to load data quality checks");

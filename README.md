@@ -114,10 +114,10 @@ All seeded values are synthetic and used only to demonstrate functionality — n
 - No automated test suite is included yet.
 
 ## Live Deployment
-- Frontend: https://cortexos-frontend.onrender.com
-- Backend API: https://cortex-enterprise.onrender.com
+- Frontend (Vercel): https://your-vercel-app-url.vercel.app
+- Backend API (Render): https://cortex-enterprise.onrender.com
 
-Render free-tier services may take several seconds to wake after inactivity.
+The frontend is being migrated to Vercel while the backend API and PostgreSQL remain on Render. Set the frontend environment variable VITE_API_URL to the Render backend URL for production deployments.
 
 ## Roadmap
 
@@ -178,11 +178,27 @@ The backend runs at `http://localhost:5050`.
 
 ```bash
 cd ../frontend
+cp .env.example .env
 npm install
 npm run dev
 ```
 
+Set the frontend environment variable in your local `.env` file:
+
+```env
+VITE_API_URL=http://localhost:5050
+```
+
 Vite starts on the first available local port, normally `http://localhost:5173`.
+
+### Deploy the Frontend to Vercel
+
+1. Connect the Vercel project to the `frontend` directory.
+2. Set the production environment variable:
+   - `VITE_API_URL=https://cortex-enterprise.onrender.com`
+3. Deploy the project from the `frontend` folder.
+
+The backend remains on Render and continues to use the existing API and PostgreSQL configuration.
 
 ## Author
 

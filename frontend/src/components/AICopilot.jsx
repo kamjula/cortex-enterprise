@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 const suggestedQuestions = [
   "Which datasets have data quality issues?",
@@ -38,7 +39,7 @@ function AICopilot() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("https://cortex-enterprise.onrender.com/copilot");
+      const response = await fetch(buildApiUrl("/copilot"));
 
       if (!response.ok) {
         throw new Error("Failed to load Copilot history");

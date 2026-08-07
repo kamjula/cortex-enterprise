@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 const initialForm = {
   title: "",
@@ -21,7 +22,7 @@ function Alerts() {
       setLoading(true);
       setError("");
 
-      const response = await fetch("https://cortex-enterprise.onrender.com/alerts");
+      const response = await fetch(buildApiUrl("/alerts"));
 
       if (!response.ok) {
         throw new Error("Failed to load alerts");
@@ -83,8 +84,8 @@ function Alerts() {
       setError("");
 
       const url = editingId
-        ? `https://cortex-enterprise.onrender.com/alerts/${editingId}`
-        : "https://cortex-enterprise.onrender.com/alerts";
+        ? buildApiUrl(`/alerts/${editingId}`)
+        : buildApiUrl("/alerts");
 
       const response = await fetch(url, {
         method: editingId ? "PUT" : "POST",
@@ -130,7 +131,7 @@ function Alerts() {
       setError("");
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/alerts/${id}/resolve`,
+        buildApiUrl(`/alerts/${id}/resolve`),
         {
           method: "PATCH",
         }
@@ -160,7 +161,7 @@ function Alerts() {
       setError("");
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/alerts/${id}`,
+        buildApiUrl(`/alerts/${id}`),
         {
           method: "DELETE",
         }

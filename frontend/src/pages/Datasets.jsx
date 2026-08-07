@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 function Datasets() {
   const [datasets, setDatasets] = useState([]);
@@ -13,7 +14,7 @@ function Datasets() {
     try {
       setError("");
 
-      const response = await fetch("https://cortex-enterprise.onrender.com/datasets");
+      const response = await fetch(buildApiUrl("/datasets"));
 
       if (!response.ok) {
         throw new Error("Failed to load datasets");
@@ -57,8 +58,8 @@ function Datasets() {
 
       const response = await fetch(
         editingId
-          ? `https://cortex-enterprise.onrender.com/datasets/${editingId}`
-          : "https://cortex-enterprise.onrender.com/datasets",
+          ? buildApiUrl(`/datasets/${editingId}`)
+          : buildApiUrl("/datasets"),
         {
           method: editingId ? "PUT" : "POST",
           headers: {
@@ -97,7 +98,7 @@ function Datasets() {
       setError("");
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/datasets/${id}`,
+        buildApiUrl(`/datasets/${id}`),
         {
           method: "DELETE",
         }

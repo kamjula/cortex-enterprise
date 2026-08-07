@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { buildApiUrl } from "./config/api";
 import Users from "./components/Users";
 import Sidebar from "./components/sidebar";
 import Header from "./components/Header";
@@ -27,7 +28,7 @@ function App() {
   const [dashboardError, setDashboardError] = useState("");
 
   useEffect(() => {
-    fetch("https://cortex-enterprise.onrender.com/dashboard")
+    fetch(buildApiUrl("/dashboard"))
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Dashboard request failed: ${res.status}`);
