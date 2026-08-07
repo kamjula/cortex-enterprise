@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 function StatusBadge({ status }) {
   const colors = {
@@ -61,9 +62,7 @@ function Pipelines() {
       setLoading(true);
       setError("");
 
-      const response = await fetch(
-        "https://cortex-enterprise.onrender.com/pipelines"
-      );
+      const response = await fetch(buildApiUrl("/pipelines"));
 
       if (!response.ok) {
         throw new Error("Failed to load pipelines");
@@ -135,7 +134,7 @@ function Pipelines() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/pipelines/${selectedPipelineId}/trigger`,
+        buildApiUrl(`/pipelines/${selectedPipelineId}/trigger`),
         {
           method: "PATCH",
         }
@@ -172,7 +171,7 @@ function Pipelines() {
       setSuccessMessage("");
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/pipelines/${pipeline.id}/retry`,
+        buildApiUrl(`/pipelines/${pipeline.id}/retry`),
         {
           method: "PATCH",
         }
@@ -208,7 +207,7 @@ function Pipelines() {
       setSelectedLogData(null);
 
       const response = await fetch(
-        `https://cortex-enterprise.onrender.com/pipelines/${pipeline.id}/logs`
+        buildApiUrl(`/pipelines/${pipeline.id}/logs`)
       );
 
       const result = await response.json();
