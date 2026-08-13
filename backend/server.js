@@ -4,6 +4,7 @@ const OpenAI = require("openai");
 require("dotenv").config();
 
 const pool = require("./db");
+const { isContextEnabled, composeCopilotRequest } = require("./copilotContext");
 
 const app = express();
 const openai = process.env.OPENAI_API_KEY
@@ -344,13 +345,27 @@ app.post("/copilot/message", async (req, res) => {
       });
     }
 
+        const contextEnabled = isContextEnabled();
+
+        const composed = await composeCopilotRequest({
+                pool,
+                prompt: normalizedPrompt,
+                systemPrompt,
+                contextEnabled,
+        });
+
+        if (!composed.ok) {
+                console.error("COPILOT CONTEXT ERROR:", composed.error);
+                return res.status(503).json({
+                          error: composed.error,
+                });
+        }
+    
+
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: normalizedPrompt },
-      ],
-      temperature: 0.2,
+        messages: composed.messages,
+              temperature: 0.2,
       max_tokens: 250,
     });
 
