@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cortexos
+      POSTGRES_USER: cortexos
+      POSTGRES_PASSWORD: cortexos_demo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cortexos -d cortexos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - cortexos_db:/var/lib/postgresql/data
+
+  db-init:
+    build:
+      context: ./backend
+    command:
+      - /bin/sh
+      - -c
+      - node setupCoreTables.js && node setupAlerts.js && node setupDataQuality.js
+    environment: &backend-environment
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: cortexos
+      DB_PASSWORD: cortexos_demo
+      DB_NAME: cortexos
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      COPILOT_CONTEXT_ENABLED: ${COPILOT_CONTEXT_ENABLED:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+    environment: *backend-environment
+    ports:
+      - "5050:5050"
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050}
+    ports:
+      - "3000:8080"
+    depends_on:
+      - backend
+
+volumes:
+  cortexos_db:
