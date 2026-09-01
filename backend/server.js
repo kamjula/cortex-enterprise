@@ -345,27 +345,26 @@ app.post("/copilot/message", async (req, res) => {
       });
     }
 
-        const contextEnabled = isContextEnabled();
+    const contextEnabled = isContextEnabled();
 
-        const composed = await composeCopilotRequest({
-                pool,
-                prompt: normalizedPrompt,
-                systemPrompt,
-                contextEnabled,
-        });
+    const composed = await composeCopilotRequest({
+      pool,
+      prompt: normalizedPrompt,
+      systemPrompt,
+      contextEnabled,
+    });
 
-        if (!composed.ok) {
-                console.error("COPILOT CONTEXT ERROR:", composed.error);
-                return res.status(503).json({
-                          error: composed.error,
-                });
-        }
-    
+    if (!composed.ok) {
+      console.error("COPILOT CONTEXT ERROR:", composed.error);
+      return res.status(503).json({
+        error: composed.error,
+      });
+    }
 
     const completion = await openai.chat.completions.create({
       model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-        messages: composed.messages,
-              temperature: 0.2,
+      messages: composed.messages,
+      temperature: 0.2,
       max_tokens: 250,
     });
 
