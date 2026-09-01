@@ -1,8 +1,42 @@
 # CortexOS - Data Operations Platform
 
-CortexOS is an in-development full-stack data operations project built with React, Node.js, Express, and PostgreSQL. It demonstrates dataset management, stored pipeline-status tracking, data-quality summaries, alert management, and an optional AI Copilot.
+CortexOS is an in-development full-stack data operations project built with React, Node.js, Express, and PostgreSQL. It demonstrates dataset management, stored pipeline-status tracking, data-quality summaries, alert management, and an AI Copilot backed by OpenAI.
 
 [Live demo](https://cortex-enterprise-sigma.vercel.app)
+
+## Screenshots
+
+**Dashboard**
+
+![Dashboard](screenshots/dashboard.png)
+
+**Dataset Management**
+
+![Dataset Management](screenshots/datasets.png)
+
+**Pipeline Monitoring**
+
+![Pipeline Monitoring](screenshots/pipelines.png)
+
+**Data Quality**
+
+![Data Quality](screenshots/data-quality.png)
+
+**Alerts Management**
+
+![Alerts Management](screenshots/alerts.png)
+
+**AI Copilot**
+
+![AI Copilot](screenshots/ai-copilot.png)
+
+**User Management (UI Prototype)**
+
+![User Management](screenshots/users.png)
+
+**Settings (UI Prototype)**
+
+![Settings](screenshots/settings.png)
 
 ## Implemented features
 
@@ -10,8 +44,7 @@ CortexOS is an in-development full-stack data operations project built with Reac
 - Pipeline status display plus trigger/retry controls
 - Data-quality score and validation-metric dashboards
 - Alert create, update, resolve, and delete operations
-- AI Copilot chat backed by OpenAI, with messages persisted in PostgreSQL
-- Optional privacy-limited operational context
+- AI Copilot chat backed by OpenAI, with messages persisted in PostgreSQL and a privacy-limited operational context available on request
 - Docker Compose setup for PostgreSQL, backend, and frontend
 
 ## AI Copilot privacy behavior
@@ -75,4 +108,4 @@ npm run build
 - Authentication and role-based access control are not implemented; API routes are open.
 - User Management and Settings remain UI prototypes.
 - Operational context is aggregate-only and disabled by default.
-- The project is not production-ready and has not been deployed, tested, or validated on IBM Z or LinuxONE.
+- The project is not production-ready.
