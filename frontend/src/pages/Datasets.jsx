@@ -8,10 +8,13 @@ function Datasets() {
   const [records, setRecords] = useState("");
   const [status, setStatus] = useState("Healthy");
   const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const loadDatasets = async () => {
     try {
+      setLoading(true);
       setError("");
 
       const response = await fetch(buildApiUrl("/datasets"));
@@ -25,6 +28,8 @@ function Datasets() {
     } catch (err) {
       console.error("Dataset fetch error:", err);
       setError(err.message || "Could not load datasets");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,6 +59,7 @@ function Datasets() {
     };
 
     try {
+      setSaving(true);
       setError("");
 
       const response = await fetch(
@@ -70,7 +76,8 @@ function Datasets() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to save dataset");
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error || "Failed to save dataset");
       }
 
       resetForm();
@@ -78,6 +85,8 @@ function Datasets() {
     } catch (err) {
       console.error("Save dataset error:", err);
       setError(err.message || "Could not save dataset");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -97,15 +106,13 @@ function Datasets() {
     try {
       setError("");
 
-      const response = await fetch(
-        buildApiUrl(`/datasets/${id}`),
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(buildApiUrl(`/datasets/${id}`), {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to delete dataset");
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error || "Failed to delete dataset");
       }
 
       await loadDatasets();
@@ -139,18 +146,99 @@ function Datasets() {
     };
   };
 
+  const renderTableContent = () => {
+    if (loading) {
+      return (
+        <div style={styles.stateCard}>
+          <span className="loading-spinner" aria-hidden="true" />
+          <div>
+            <strong style={styles.stateTitle}>Loading datasets</strong>
+            <p style={styles.stateText}>Fetching the latest dataset records from CortexOS.</p>
+          </div>
+        </div>
+      );
+    }
+
+    if (error && datasets.length === 0) {
+      return (
+        <div style={styles.stateCard}>
+          <div>
+            <strong style={styles.stateTitle}>Datasets could not be loaded</strong>
+            <p style={styles.stateText}>{error}</p>
+            <button type="button" onClick={loadDatasets} style={styles.retryButton}>
+              Retry
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (datasets.length === 0) {
+      return (
+        <div style={styles.stateCard}>
+          <div>
+            <strong style={styles.stateTitle}>No datasets yet</strong>
+            <p style={styles.stateText}>Add your first dataset using the form above.</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div style={styles.tableWrapper}>
+        <table style={styles.table}>
+          <thead>
+            <tr>
+              <th style={styles.th}>ID</th>
+              <th style={styles.th}>Name</th>
+              <th style={styles.th}>Owner</th>
+              <th style={styles.th}>Records</th>
+              <th style={styles.th}>Status</th>
+              <th style={styles.th}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {datasets.map((item) => (
+              <tr key={item.id}>
+                <td style={styles.td}>{item.id}</td>
+                <td style={{ ...styles.td, fontWeight: 700, color: "#0F172A" }}>
+                  {item.name}
+                </td>
+                <td style={styles.td}>{item.owner}</td>
+                <td style={styles.td}>{Number(item.records || 0).toLocaleString()}</td>
+                <td style={styles.td}>
+                  <span style={{ ...styles.statusBadge, ...getStatusBadgeStyle(item.status) }}>
+                    {item.status}
+                  </span>
+                </td>
+                <td style={styles.td}>
+                  <div style={styles.actionGroup}>
+                    <button type="button" onClick={() => editDataset(item)} style={styles.editButton}>
+                      Edit
+                    </button>
+                    <button type="button" onClick={() => deleteDataset(item.id)} style={styles.deleteButton}>
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
   return (
     <div style={styles.page}>
       <div style={styles.header}>
         <div>
           <h2 style={styles.title}>Dataset Management</h2>
-          <p style={styles.subtitle}>
-            Live PostgreSQL datasets connected to CortexOS.
-          </p>
+          <p style={styles.subtitle}>Live PostgreSQL datasets connected to CortexOS.</p>
         </div>
       </div>
 
-      {error && <div style={styles.errorCard}>{error}</div>}
+      {error && datasets.length > 0 && <div style={styles.errorCard}>{error}</div>}
 
       <div style={styles.formCard}>
         <div style={styles.formGrid}>
@@ -159,27 +247,28 @@ function Datasets() {
             value={name}
             onChange={(event) => setName(event.target.value)}
             style={styles.input}
+            disabled={saving}
           />
-
           <input
             placeholder="Owner"
             value={owner}
             onChange={(event) => setOwner(event.target.value)}
             style={styles.input}
+            disabled={saving}
           />
-
           <input
             type="number"
             placeholder="Records"
             value={records}
             onChange={(event) => setRecords(event.target.value)}
             style={styles.input}
+            disabled={saving}
           />
-
           <select
             value={status}
             onChange={(event) => setStatus(event.target.value)}
             style={styles.input}
+            disabled={saving}
           >
             <option value="Healthy">Healthy</option>
             <option value="Warning">Warning</option>
@@ -188,98 +277,37 @@ function Datasets() {
         </div>
 
         <div style={styles.formActions}>
-          <button type="button" onClick={saveDataset} style={styles.primaryButton}>
-            {editingId ? "Update Dataset" : "Add Dataset"}
+          <button
+            type="button"
+            onClick={saveDataset}
+            style={{ ...styles.primaryButton, opacity: saving ? 0.7 : 1 }}
+            disabled={saving}
+          >
+            {saving ? "Saving..." : editingId ? "Update Dataset" : "Add Dataset"}
           </button>
-
           {editingId && (
-            <button type="button" onClick={resetForm} style={styles.secondaryButton}>
+            <button
+              type="button"
+              onClick={resetForm}
+              style={styles.secondaryButton}
+              disabled={saving}
+            >
               Cancel
             </button>
           )}
         </div>
       </div>
 
-      <div style={styles.tableCard}>
-        <div style={styles.tableWrapper}>
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th style={styles.th}>ID</th>
-                <th style={styles.th}>Name</th>
-                <th style={styles.th}>Owner</th>
-                <th style={styles.th}>Records</th>
-                <th style={styles.th}>Status</th>
-                <th style={styles.th}>Actions</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {datasets.map((item) => (
-                <tr key={item.id}>
-                  <td style={styles.td}>{item.id}</td>
-                  <td style={{ ...styles.td, fontWeight: 700, color: "#0F172A" }}>
-                    {item.name}
-                  </td>
-                  <td style={styles.td}>{item.owner}</td>
-                  <td style={styles.td}>
-                    {Number(item.records || 0).toLocaleString()}
-                  </td>
-                  <td style={styles.td}>
-                    <span style={{ ...styles.statusBadge, ...getStatusBadgeStyle(item.status) }}>
-                      {item.status}
-                    </span>
-                  </td>
-                  <td style={styles.td}>
-                    <div style={styles.actionGroup}>
-                      <button
-                        type="button"
-                        onClick={() => editDataset(item)}
-                        style={styles.editButton}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => deleteDataset(item.id)}
-                        style={styles.deleteButton}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <div style={styles.tableCard}>{renderTableContent()}</div>
     </div>
   );
 }
 
 const styles = {
-  page: {
-    marginTop: "30px",
-  },
-
-  header: {
-    marginBottom: "18px",
-  },
-
-  title: {
-    margin: 0,
-    color: "#0F172A",
-    fontSize: "1.9rem",
-  },
-
-  subtitle: {
-    margin: "8px 0 0",
-    color: "#64748B",
-    fontSize: "0.95rem",
-  },
-
+  page: { marginTop: "30px" },
+  header: { marginBottom: "18px" },
+  title: { margin: 0, color: "#0F172A", fontSize: "1.9rem" },
+  subtitle: { margin: "8px 0 0", color: "#64748B", fontSize: "0.95rem" },
   errorCard: {
     marginBottom: "18px",
     padding: "12px 14px",
@@ -289,7 +317,6 @@ const styles = {
     border: "1px solid #FCA5A5",
     fontWeight: 600,
   },
-
   formCard: {
     background: "#FFFFFF",
     borderRadius: "18px",
@@ -298,13 +325,11 @@ const styles = {
     padding: "20px",
     marginBottom: "20px",
   },
-
   formGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "12px",
   },
-
   input: {
     boxSizing: "border-box",
     width: "100%",
@@ -316,14 +341,7 @@ const styles = {
     fontSize: "0.94rem",
     outline: "none",
   },
-
-  formActions: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px",
-    marginTop: "14px",
-  },
-
+  formActions: { display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "14px" },
   primaryButton: {
     border: "none",
     borderRadius: "12px",
@@ -334,7 +352,6 @@ const styles = {
     fontWeight: 700,
     boxShadow: "0 8px 20px rgba(37, 99, 235, 0.22)",
   },
-
   secondaryButton: {
     border: "1px solid #CBD5E1",
     borderRadius: "12px",
@@ -344,7 +361,6 @@ const styles = {
     cursor: "pointer",
     fontWeight: 700,
   },
-
   tableCard: {
     background: "#FFFFFF",
     borderRadius: "18px",
@@ -352,17 +368,29 @@ const styles = {
     boxShadow: "0 12px 30px rgba(15, 23, 42, 0.06)",
     overflow: "hidden",
   },
-
-  tableWrapper: {
-    overflowX: "auto",
+  stateCard: {
+    minHeight: "180px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "12px",
+    padding: "28px",
+    textAlign: "center",
   },
-
-  table: {
-    width: "100%",
-    minWidth: "760px",
-    borderCollapse: "collapse",
+  stateTitle: { display: "block", color: "#0F172A", fontSize: "1rem", marginBottom: "6px" },
+  stateText: { color: "#64748B", lineHeight: 1.6 },
+  retryButton: {
+    marginTop: "14px",
+    border: "1px solid #BFDBFE",
+    borderRadius: "10px",
+    background: "#EFF6FF",
+    color: "#1D4ED8",
+    padding: "9px 14px",
+    cursor: "pointer",
+    fontWeight: 700,
   },
-
+  tableWrapper: { overflowX: "auto" },
+  table: { width: "100%", minWidth: "760px", borderCollapse: "collapse" },
   th: {
     padding: "14px 16px",
     background: "#2563EB",
@@ -373,7 +401,6 @@ const styles = {
     letterSpacing: "0.02em",
     textTransform: "uppercase",
   },
-
   td: {
     padding: "14px 16px",
     borderBottom: "1px solid #E2E8F0",
@@ -381,7 +408,6 @@ const styles = {
     fontSize: "0.94rem",
     verticalAlign: "top",
   },
-
   statusBadge: {
     display: "inline-flex",
     alignItems: "center",
@@ -393,13 +419,7 @@ const styles = {
     textTransform: "uppercase",
     letterSpacing: "0.02em",
   },
-
-  actionGroup: {
-    display: "flex",
-    gap: "8px",
-    flexWrap: "wrap",
-  },
-
+  actionGroup: { display: "flex", gap: "8px", flexWrap: "wrap" },
   editButton: {
     border: "1px solid #BFDBFE",
     borderRadius: "10px",
@@ -409,7 +429,6 @@ const styles = {
     cursor: "pointer",
     fontWeight: 700,
   },
-
   deleteButton: {
     border: "1px solid #FCA5A5",
     borderRadius: "10px",
