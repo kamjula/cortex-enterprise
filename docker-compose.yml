@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-cortexos}
+      POSTGRES_USER: ${POSTGRES_USER:-cortexos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-cortexos} -d ${POSTGRES_DB:-cortexos}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - cortexos_db:/var/lib/postgresql/data
+
+  db-init:
+    build:
+      context: ./backend
+    command: ["/bin/sh", "-c", "node setupCoreTables.js && node setupAlerts.js && node setupDataQuality.js"]
+    environment: &backend-environment
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER:-cortexos}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in your environment}
+      DB_NAME: ${POSTGRES_DB:-cortexos}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      COPILOT_CONTEXT_ENABLED: ${COPILOT_CONTEXT_ENABLED:-false}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+    environment: *backend-environment
+    ports:
+      - "5050:5050"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://localhost:5050/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5050}
+    ports:
+      - "3000:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  cortexos_db:

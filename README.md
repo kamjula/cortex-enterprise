@@ -1,24 +1,8 @@
-# CortexOS — Enterprise Data Platform
+# CortexOS - Data Operations Platform
 
-![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
-![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-database-4169E1?logo=postgresql&logoColor=white)
-![Status](https://img.shields.io/badge/status-in%20development-yellow)
+CortexOS is an in-development full-stack data operations project built with React, Node.js, Express, and PostgreSQL. It demonstrates dataset management, stored pipeline-status tracking, data-quality summaries, alert management, and an AI Copilot backed by OpenAI.
 
-[GitHub Repository](https://github.com/kamjula/cortex-enterprise) • [Live Demo](https://cortex-enterprise-sigma.vercel.app)
-
-> Enterprise Data Operations Platform with AI-Assisted Workflows
-
-**React • Node.js • Express • PostgreSQL**
-
-Pipeline Monitoring • Data Quality • Dataset Management • Alerts • AI Copilot
-
-## Overview
-
-CortexOS is a full-stack enterprise data platform designed to help teams monitor data pipelines, improve data quality, manage datasets, track alerts, and explore AI-assisted operational workflows from a single workspace.
-
-Built with React, Node.js, Express, and PostgreSQL, the platform combines functional CRUD operations, REST APIs, pipeline execution workflows, data quality monitoring, and enterprise dashboard interfaces.
+[Live demo](https://cortex-enterprise-sigma.vercel.app)
 
 ## Screenshots
 
@@ -42,7 +26,7 @@ Built with React, Node.js, Express, and PostgreSQL, the platform combines functi
 
 ![Alerts Management](screenshots/alerts.png)
 
-**AI Copilot (UI Prototype)**
+**AI Copilot**
 
 ![AI Copilot](screenshots/ai-copilot.png)
 
@@ -54,85 +38,74 @@ Built with React, Node.js, Express, and PostgreSQL, the platform combines functi
 
 ![Settings](screenshots/settings.png)
 
-## Tech Stack
+## Implemented features
 
-- **Frontend:** React 19, Vite, JavaScript, Recharts, Lucide React
-- **Backend:** Node.js, Express.js
-- **Database:** PostgreSQL
-- **Design & Development Tools:** Git, GitHub, VS Code, Figma
+- Dataset create, read, update, and delete operations backed by PostgreSQL
+- Pipeline status display plus trigger/retry controls
+- Data-quality score and validation-metric dashboards
+- Alert create, update, resolve, and delete operations
+- AI Copilot chat backed by OpenAI, with messages persisted in PostgreSQL and a privacy-limited operational context available on request
+- Docker Compose setup for PostgreSQL, backend, and frontend
 
-## Architecture
+## AI Copilot privacy behavior
 
-| Layer | Technology |
-|---|---|
-| Frontend | React + Vite |
-| Backend | Node.js + Express |
-| Database | PostgreSQL |
+The Copilot works without operational context by default. Set `COPILOT_CONTEXT_ENABLED=true` only when you intentionally want to include a read-only aggregate snapshot in an OpenAI request.
 
-**Application Flow:** React Frontend → Express REST API → PostgreSQL Database
+When enabled, the snapshot contains only:
 
-## Project Status
+- dataset counts grouped by status
+- pipeline counts grouped by status
+- alert counts grouped by status and severity
+- data-quality counts grouped by status
+- average and minimum data-quality scores
 
-| Feature | Status |
-|---|---|
-| Dataset Management | Functional |
-| Pipeline Monitoring | Functional |
-| Data Quality | Functional |
-| Alerts Management | Functional |
-| AI Copilot | UI Prototype |
-| User Management | UI Prototype |
-| Settings | UI Prototype |
-| Authentication | Planned |
+It excludes dataset names and owners, pipeline names/sources/destinations, alert titles/messages, chat history, and individual database rows. SQL statements are fixed aggregate `SELECT` queries; neither prompts nor model output can generate SQL.
 
-Status definitions: Functional features are connected to the Express API and PostgreSQL. UI Prototype modules are navigable interface concepts that are not yet connected to persistent backend logic.
+## Local setup with Docker
 
-## Current Features
+Requirements: Docker with Compose support.
 
-- **Dataset Management:** Create, view, update, and delete datasets through REST API routes backed by PostgreSQL.
-- **Pipeline Monitoring:** Track pipeline status, trigger runs, retry failed executions, and review execution logs.
-- **Data Quality Dashboard:** Monitor quality scores, validation metrics, missing values, failed checks, and dataset-level trends.
-- **Alerts Management:** Create, view, update, resolve, and delete alerts with severity and status tracking.
+```bash
+export POSTGRES_PASSWORD='choose-a-local-password'
+export OPENAI_API_KEY='your-key' # optional; required only for Copilot responses
+docker compose up --build
+```
 
-## UI Prototypes
+Open the frontend at http://localhost:3000 and backend at http://localhost:5050.
 
-- **AI Copilot:** Conversational interface prototype for exploring datasets, pipelines, alerts, and data quality information.
-- **User Management:** Enterprise-style interface for viewing users, roles, and account status.
-- **Settings:** Interface for notification, security, integration, and appearance preferences.
+Operational context remains disabled unless you explicitly set:
 
-## Highlights
+```bash
+export COPILOT_CONTEXT_ENABLED=true
+```
 
-- Enterprise dashboard with 8 integrated modules
-- Responsive modern user interface
-- RESTful API architecture
-- PostgreSQL database integration
-- Dataset and alerts CRUD workflows
-- Pipeline triggering, retry handling, and execution logs
-- Data quality analytics and visualizations
-- AI Copilot interface prototype
+Do not commit real passwords or API keys. To stop the stack, run `docker compose down`. Add `-v` only when you intentionally want to delete the local PostgreSQL volume.
 
-## Demo Data
+## Development commands
 
-The `alerts` and `data_quality_checks` tables are populated using setup scripts included in this repository:
+Backend:
 
-- `backend/setupAlerts.js` — creates the `alerts` table and inserts sample records such as a pipeline failure alert and a data quality warning.
-- `backend/setupDataQuality.js` — creates the `data_quality_checks` table and inserts sample records such as Sales Data, Customer Data, Finance Data, and Inventory Data.
+```bash
+cd backend
+npm ci
+npm test
+npm start
+```
 
-All seeded values are synthetic and used only to demonstrate functionality. No real company or personal data is included.
+Frontend:
 
-## Current Limitations
+```bash
+cd frontend
+npm ci
+npm run lint
+npm run build
+```
 
-- Authentication and role-based access control are not yet implemented; API routes are currently open.
-- AI Copilot, User Management, and Settings are UI prototypes only and are not yet connected to backend logic.
-- No automated test suite is included yet.
+## Important limitations
 
-## Live Deployment
-
-- **Frontend (Vercel):** https://cortex-enterprise-sigma.vercel.app
-- **Backend API (Render):** https://cortex-enterprise.onrender.com
-
-The frontend is deployed on Vercel while the backend API and PostgreSQL remain hosted separately.
-
-For production deployments, the frontend uses the following environment variable:
-
-```env
-VITE_API_URL=https://cortex-enterprise.onrender.com
+- Pipeline trigger and retry routes only update the stored status to `Running`. They do not execute a pipeline, job, worker, or orchestration engine.
+- Displayed pipeline logs are generated from stored pipeline fields; they are not persisted execution logs.
+- Authentication and role-based access control are not implemented; API routes are open.
+- User Management and Settings remain UI prototypes.
+- Operational context is aggregate-only and disabled by default.
+- The project is not production-ready.
