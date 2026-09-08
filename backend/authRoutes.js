@@ -46,11 +46,17 @@ function createAuthRouter(pool) {
   router.post('/logout', async (req, res) => {
     const token = req.body?.refreshToken;
     if (typeof token !== 'string' || !token) return res.status(400).json({ error: 'Refresh token required' });
+    let payload;
+    try { payload = verifyRefreshToken(token); }
+    catch (error) {
+      if (error.name === 'TokenExpiredError' || error.name === 'JsonWebTokenError' || error.name === 'NotBeforeError') return res.status(204).end();
+      console.error('Logout verification failed:', error.message);
+      return unavailable(res);
+    }
     try {
-      const payload = verifyRefreshToken(token);
       await pool.query('UPDATE auth_refresh_tokens SET revoked_at = NOW() WHERE token_hash = $1 AND user_id = $2 AND revoked_at IS NULL', [hashToken(token), payload.sub]);
-    } catch (error) { if (!error.name || !error.name.includes('Token') && error.name !== 'JsonWebTokenError') return unavailable(res); }
-    return res.status(204).end();
+      return res.status(204).end();
+    } catch (error) { console.error('Logout failed:', error.message); return unavailable(res); }
   });
   router.get('/me', requireAuth, async (req, res) => {
     try {
