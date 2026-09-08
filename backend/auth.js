@@ -1,76 +1,28 @@
-const jwt = require("jsonwebtoken");
+const jwt = require('jsonwebtoken');
+const crypto = require('node:crypto');
 
-const ACCESS_TOKEN_TTL = process.env.JWT_ACCESS_TTL || "15m";
-const REFRESH_TOKEN_TTL = process.env.JWT_REFRESH_TTL || "7d";
-
-function getSecret(name) {
+function secret(name) {
   const value = process.env[name];
-  if (!value) {
-    throw new Error(`${name} is not configured`);
-  }
+  if (!value || value.length < 32) throw new Error(`${name} must be configured with at least 32 characters`);
   return value;
 }
-
 function issueAccessToken(user) {
-  return jwt.sign(
-    {
-      sub: String(user.id),
-      email: user.email,
-      role: user.role || "Viewer",
-      type: "access",
-    },
-    getSecret("JWT_SECRET"),
-    { expiresIn: ACCESS_TOKEN_TTL }
-  );
+  return jwt.sign({ sub: String(user.id), email: user.email, role: user.role || 'Viewer', type: 'access' }, secret('JWT_SECRET'), { algorithm: 'HS256', expiresIn: process.env.JWT_ACCESS_TTL || '15m' });
 }
-
 function issueRefreshToken(user) {
-  return jwt.sign(
-    {
-      sub: String(user.id),
-      type: "refresh",
-    },
-    getSecret("JWT_REFRESH_SECRET"),
-    { expiresIn: REFRESH_TOKEN_TTL }
-  );
+  return jwt.sign({ sub: String(user.id), type: 'refresh', jti: crypto.randomUUID() }, secret('JWT_REFRESH_SECRET'), { algorithm: 'HS256', expiresIn: process.env.JWT_REFRESH_TTL || '7d' });
 }
-
-function verifyAccessToken(token) {
-  const payload = jwt.verify(token, getSecret("JWT_SECRET"));
-  if (payload.type !== "access") {
-    throw new Error("Invalid access token");
-  }
+function verifyToken(token, name, type) {
+  const payload = jwt.verify(token, secret(name), { algorithms: ['HS256'] });
+  if (payload.type !== type || !payload.sub) throw new Error('Invalid token type');
   return payload;
 }
-
-function verifyRefreshToken(token) {
-  const payload = jwt.verify(token, getSecret("JWT_REFRESH_SECRET"));
-  if (payload.type !== "refresh") {
-    throw new Error("Invalid refresh token");
-  }
-  return payload;
-}
-
+const verifyAccessToken = token => verifyToken(token, 'JWT_SECRET', 'access');
+const verifyRefreshToken = token => verifyToken(token, 'JWT_REFRESH_SECRET', 'refresh');
 function requireAuth(req, res, next) {
-  const header = req.headers.authorization || "";
-  const [scheme, token] = header.split(" ");
-
-  if (scheme !== "Bearer" || !token) {
-    return res.status(401).json({ error: "Authentication required" });
-  }
-
-  try {
-    req.user = verifyAccessToken(token);
-    return next();
-  } catch (error) {
-    return res.status(401).json({ error: "Invalid or expired token" });
-  }
+  const match = /^Bearer ([^\s]+)$/.exec(req.headers.authorization || '');
+  if (!match) return res.status(401).json({ error: 'Authentication required' });
+  try { req.user = verifyAccessToken(match[1]); return next(); }
+  catch { return res.status(401).json({ error: 'Invalid or expired token' }); }
 }
-
-module.exports = {
-  issueAccessToken,
-  issueRefreshToken,
-  verifyAccessToken,
-  verifyRefreshToken,
-  requireAuth,
-};
+module.exports = { issueAccessToken, issueRefreshToken, verifyAccessToken, verifyRefreshToken, requireAuth };
