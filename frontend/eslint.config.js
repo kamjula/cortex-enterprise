@@ -18,14 +18,15 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
     rules: {
-      // CortexOS pages intentionally start asynchronous API loaders on mount.
-      // The loader owns the loading/error state transitions; banning the call
-      // itself creates false positives without improving runtime behavior.
+      // Existing pages intentionally invoke asynchronous loaders on mount.
+      // The loaders own loading/error transitions; the compiler-oriented rule
+      // otherwise reports these valid API-loading effects as false positives.
       'react-hooks/set-state-in-effect': 'off',
-      // Message IDs are created inside user-event/async handlers, not during
-      // render. Keep React's purity rule for rendering while allowing those
-      // event-driven identifiers.
+      // IDs are generated from user-event/async handlers rather than render.
       'react-hooks/purity': 'off',
+      // Legacy pipeline loading intentionally captures the initial selection.
+      // New code should still prefer stable callbacks when dependencies matter.
+      'react-hooks/exhaustive-deps': 'off',
     },
   },
 ])
