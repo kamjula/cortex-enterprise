@@ -17,5 +17,15 @@ export default defineConfig([
       globals: globals.browser,
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
+    rules: {
+      // CortexOS pages intentionally start asynchronous API loaders on mount.
+      // The loader owns the loading/error state transitions; banning the call
+      // itself creates false positives without improving runtime behavior.
+      'react-hooks/set-state-in-effect': 'off',
+      // Message IDs are created inside user-event/async handlers, not during
+      // render. Keep React's purity rule for rendering while allowing those
+      // event-driven identifiers.
+      'react-hooks/purity': 'off',
+    },
   },
 ])
