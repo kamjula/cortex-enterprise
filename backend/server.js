@@ -5,6 +5,8 @@ require("dotenv").config();
 
 const pool = require("./db");
 const { isContextEnabled, composeCopilotRequest } = require("./copilotContext");
+const { createAuthRouter } = require("./authRoutes");
+const { requireActiveUser } = require("./authGuard");
 
 const app = express();
 const openai = process.env.OPENAI_API_KEY
@@ -14,35 +16,21 @@ const systemPrompt = `You are CortexOS AI Copilot, a helpful enterprise data ope
 
 app.use(cors());
 app.use(express.json());
+app.use("/auth", createAuthRouter(pool));
 
 app.get("/", (req, res) => {
   res.send("CortexOS Backend Running");
 });
 
+app.use(requireActiveUser(pool));
+
 app.get("/dashboard", async (req, res) => {
   try {
-    const total = await pool.query(
-      "SELECT COUNT(*) AS count FROM datasets"
-    );
-
-    const healthy = await pool.query(
-      "SELECT COUNT(*) AS count FROM datasets WHERE status = 'Healthy'"
-    );
-
-    const warning = await pool.query(
-      "SELECT COUNT(*) AS count FROM datasets WHERE status = 'Warning'"
-    );
-
-    const records = await pool.query(
-      "SELECT COALESCE(SUM(records), 0) AS total_records FROM datasets"
-    );
-
-    res.json({
-      totalDatasets: Number(total.rows[0].count),
-      healthy: Number(healthy.rows[0].count),
-      warning: Number(warning.rows[0].count),
-      totalRecords: Number(records.rows[0].total_records),
-    });
+    const total = await pool.query("SELECT COUNT(*) AS count FROM datasets");
+    const healthy = await pool.query("SELECT COUNT(*) AS count FROM datasets WHERE status = 'Healthy'");
+    const warning = await pool.query("SELECT COUNT(*) AS count FROM datasets WHERE status = 'Warning'");
+    const records = await pool.query("SELECT COALESCE(SUM(records), 0) AS total_records FROM datasets");
+    res.json({ totalDatasets: Number(total.rows[0].count), healthy: Number(healthy.rows[0].count), warning: Number(warning.rows[0].count), totalRecords: Number(records.rows[0].total_records) });
   } catch (err) {
     console.error("DASHBOARD ERROR:", err.message);
     res.status(500).json({ error: err.message });
@@ -50,515 +38,155 @@ app.get("/dashboard", async (req, res) => {
 });
 
 app.get("/datasets", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM datasets ORDER BY id"
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error("DATASETS ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  try { const result = await pool.query("SELECT * FROM datasets ORDER BY id"); res.json(result.rows); }
+  catch (err) { console.error("DATASETS ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
-
 
 app.post("/datasets", async (req, res) => {
   try {
     const { name, owner, records, status = "Healthy" } = req.body;
-
     const allowedStatuses = ["Healthy", "Warning", "Failed"];
     const recordCount = Number(records);
-
-    if (!name?.trim() || !owner?.trim()) {
-      return res.status(400).json({
-        error: "Name and owner are required",
-      });
-    }
-
-    if (!Number.isInteger(recordCount) || recordCount < 0) {
-      return res.status(400).json({
-        error: "Records must be a non-negative integer",
-      });
-    }
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        error: "Invalid dataset status",
-      });
-    }
-
-    const result = await pool.query(
-      `
-        INSERT INTO datasets (name, owner, records, status)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
-      `,
-      [name.trim(), owner.trim(), recordCount, status]
-    );
-
+    if (!name?.trim() || !owner?.trim()) return res.status(400).json({ error: "Name and owner are required" });
+    if (!Number.isInteger(recordCount) || recordCount < 0) return res.status(400).json({ error: "Records must be a non-negative integer" });
+    if (!allowedStatuses.includes(status)) return res.status(400).json({ error: "Invalid dataset status" });
+    const result = await pool.query(`INSERT INTO datasets (name, owner, records, status) VALUES ($1, $2, $3, $4) RETURNING *`, [name.trim(), owner.trim(), recordCount, status]);
     res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error("CREATE DATASET ERROR:", err.message);
-    res.status(500).json({ error: "Could not create dataset" });
-  }
+  } catch (err) { console.error("CREATE DATASET ERROR:", err.message); res.status(500).json({ error: "Could not create dataset" }); }
 });
 
 app.put("/datasets/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { name, owner, records, status } = req.body;
-
     const allowedStatuses = ["Healthy", "Warning", "Failed"];
     const recordCount = Number(records);
-
-    if (!name?.trim() || !owner?.trim()) {
-      return res.status(400).json({
-        error: "Name and owner are required",
-      });
-    }
-
-    if (!Number.isInteger(recordCount) || recordCount < 0) {
-      return res.status(400).json({
-        error: "Records must be a non-negative integer",
-      });
-    }
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        error: "Invalid dataset status",
-      });
-    }
-
-    const result = await pool.query(
-      `
-        UPDATE datasets
-        SET name = $1,
-            owner = $2,
-            records = $3,
-            status = $4
-        WHERE id = $5
-        RETURNING *
-      `,
-      [name.trim(), owner.trim(), recordCount, status, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Dataset not found",
-      });
-    }
-
+    if (!name?.trim() || !owner?.trim()) return res.status(400).json({ error: "Name and owner are required" });
+    if (!Number.isInteger(recordCount) || recordCount < 0) return res.status(400).json({ error: "Records must be a non-negative integer" });
+    if (!allowedStatuses.includes(status)) return res.status(400).json({ error: "Invalid dataset status" });
+    const result = await pool.query(`UPDATE datasets SET name = $1, owner = $2, records = $3, status = $4 WHERE id = $5 RETURNING *`, [name.trim(), owner.trim(), recordCount, status, id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Dataset not found" });
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error("UPDATE DATASET ERROR:", err.message);
-    res.status(500).json({ error: "Could not update dataset" });
-  }
+  } catch (err) { console.error("UPDATE DATASET ERROR:", err.message); res.status(500).json({ error: "Could not update dataset" }); }
 });
 
 app.delete("/datasets/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      `
-        DELETE FROM datasets
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Dataset not found",
-      });
-    }
-
-    res.json({
-      message: "Dataset deleted successfully",
-      dataset: result.rows[0],
-    });
-  } catch (err) {
-    console.error("DELETE DATASET ERROR:", err.message);
-    res.status(500).json({ error: "Could not delete dataset" });
-  }
+    const result = await pool.query(`DELETE FROM datasets WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Dataset not found" });
+    res.json({ message: "Dataset deleted successfully", dataset: result.rows[0] });
+  } catch (err) { console.error("DELETE DATASET ERROR:", err.message); res.status(500).json({ error: "Could not delete dataset" }); }
 });
 
 app.get("/pipelines", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM pipelines ORDER BY id"
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error("GET PIPELINES ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  try { const result = await pool.query("SELECT * FROM pipelines ORDER BY id"); res.json(result.rows); }
+  catch (err) { console.error("GET PIPELINES ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.get("/pipelines/:id/logs", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      "SELECT * FROM pipelines WHERE id = $1",
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Pipeline not found",
-      });
-    }
-
+    const result = await pool.query("SELECT * FROM pipelines WHERE id = $1", [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Pipeline not found" });
     const pipeline = result.rows[0];
-
     const logs = [
-      {
-        timestamp: new Date().toISOString(),
-        level: "INFO",
-        message: `${pipeline.pipeline_name} pipeline selected.`,
-      },
-      {
-        timestamp: new Date().toISOString(),
-        level: "INFO",
-        message: `Reading data from ${pipeline.source}.`,
-      },
-      {
-        timestamp: new Date().toISOString(),
-        level:
-          pipeline.status === "Failed"
-            ? "ERROR"
-            : "SUCCESS",
-        message:
-          pipeline.status === "Failed"
-            ? `Pipeline execution failed before loading data into ${pipeline.destination}.`
-            : `Pipeline completed with status ${pipeline.status}.`,
-      },
+      { timestamp: new Date().toISOString(), level: "INFO", message: `${pipeline.pipeline_name} pipeline selected.` },
+      { timestamp: new Date().toISOString(), level: "INFO", message: `Reading data from ${pipeline.source}.` },
+      { timestamp: new Date().toISOString(), level: pipeline.status === "Failed" ? "ERROR" : "SUCCESS", message: pipeline.status === "Failed" ? `Pipeline execution failed before loading data into ${pipeline.destination}.` : `Pipeline completed with status ${pipeline.status}.` },
     ];
-
-    res.json({
-      pipeline,
-      logs,
-    });
-  } catch (err) {
-    console.error("PIPELINE LOGS ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    res.json({ pipeline, logs });
+  } catch (err) { console.error("PIPELINE LOGS ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.patch("/pipelines/:id/trigger", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      `
-        UPDATE pipelines
-        SET status = 'Running'
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Pipeline not found",
-      });
-    }
-
-    res.json({
-      message: "Pipeline triggered successfully",
-      pipeline: result.rows[0],
-    });
-  } catch (err) {
-    console.error("TRIGGER PIPELINE ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const result = await pool.query(`UPDATE pipelines SET status = 'Running' WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Pipeline not found" });
+    res.json({ message: "Pipeline triggered successfully", pipeline: result.rows[0] });
+  } catch (err) { console.error("TRIGGER PIPELINE ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.patch("/pipelines/:id/retry", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      `
-        UPDATE pipelines
-        SET status = 'Running'
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Pipeline not found",
-      });
-    }
-
-    res.json({
-      message: "Pipeline retry started",
-      pipeline: result.rows[0],
-    });
-  } catch (err) {
-    console.error("RETRY PIPELINE ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const result = await pool.query(`UPDATE pipelines SET status = 'Running' WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Pipeline not found" });
+    res.json({ message: "Pipeline retry started", pipeline: result.rows[0] });
+  } catch (err) { console.error("RETRY PIPELINE ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.get("/copilot", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT id, role, content, created_at FROM ai_chat ORDER BY created_at ASC, id ASC"
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error("COPILOT ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  try { const result = await pool.query("SELECT id, role, content, created_at FROM ai_chat ORDER BY created_at ASC, id ASC"); res.json(result.rows); }
+  catch (err) { console.error("COPILOT ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.post("/copilot/message", async (req, res) => {
   try {
     const { prompt } = req.body;
-
-    if (typeof prompt !== "string" || !prompt.trim()) {
-      return res.status(400).json({
-        error: "A prompt is required.",
-      });
-    }
-
+    if (typeof prompt !== "string" || !prompt.trim()) return res.status(400).json({ error: "A prompt is required." });
     const normalizedPrompt = prompt.trim();
-
-    await pool.query(
-      "INSERT INTO ai_chat (role, content) VALUES ($1, $2)",
-      ["user", normalizedPrompt]
-    );
-
-    if (!openai) {
-      return res.status(503).json({
-        error: "AI Copilot is not configured yet. Add OPENAI_API_KEY on the server.",
-      });
-    }
-
-    const contextEnabled = isContextEnabled();
-
-    const composed = await composeCopilotRequest({
-      pool,
-      prompt: normalizedPrompt,
-      systemPrompt,
-      contextEnabled,
-    });
-
-    if (!composed.ok) {
-      console.error("COPILOT CONTEXT ERROR:", composed.error);
-      return res.status(503).json({
-        error: composed.error,
-      });
-    }
-
-    const completion = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
-      messages: composed.messages,
-      temperature: 0.2,
-      max_tokens: 250,
-    });
-
-    const assistantReply =
-      completion.choices?.[0]?.message?.content?.trim() ||
-      "I couldn't generate a response right now.";
-
-    await pool.query(
-      "INSERT INTO ai_chat (role, content) VALUES ($1, $2)",
-      ["assistant", assistantReply]
-    );
-
+    await pool.query("INSERT INTO ai_chat (role, content) VALUES ($1, $2)", ["user", normalizedPrompt]);
+    if (!openai) return res.status(503).json({ error: "AI Copilot is not configured yet. Add OPENAI_API_KEY on the server." });
+    const composed = await composeCopilotRequest({ pool, prompt: normalizedPrompt, systemPrompt, contextEnabled: isContextEnabled() });
+    if (!composed.ok) { console.error("COPILOT CONTEXT ERROR:", composed.error); return res.status(503).json({ error: composed.error }); }
+    const completion = await openai.chat.completions.create({ model: process.env.OPENAI_MODEL || "gpt-4o-mini", messages: composed.messages, temperature: 0.2, max_tokens: 250 });
+    const assistantReply = completion.choices?.[0]?.message?.content?.trim() || "I couldn't generate a response right now.";
+    await pool.query("INSERT INTO ai_chat (role, content) VALUES ($1, $2)", ["assistant", assistantReply]);
     res.json({ reply: assistantReply });
-  } catch (err) {
-    console.error("COPILOT MESSAGE ERROR:", err.message);
-    res.status(500).json({
-      error: "Unable to process your request right now.",
-    });
-  }
+  } catch (err) { console.error("COPILOT MESSAGE ERROR:", err.message); res.status(500).json({ error: "Unable to process your request right now." }); }
 });
 
 app.get("/data-quality", async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT
-        id,
-        dataset_name,
-        score,
-        missing_values,
-        duplicate_records,
-        failed_rules,
-        status,
-        created_at
-      FROM data_quality_checks
-      ORDER BY id
-    `);
-
+    const result = await pool.query(`SELECT id, dataset_name, score, missing_values, duplicate_records, failed_rules, status, created_at FROM data_quality_checks ORDER BY id`);
     res.json(result.rows);
-  } catch (err) {
-    console.error("DATA QUALITY ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { console.error("DATA QUALITY ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.get("/alerts", async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM alerts ORDER BY created_at DESC, id DESC"
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error("GET ALERTS ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  try { const result = await pool.query("SELECT * FROM alerts ORDER BY created_at DESC, id DESC"); res.json(result.rows); }
+  catch (err) { console.error("GET ALERTS ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.post("/alerts", async (req, res) => {
   try {
-    const {
-      title,
-      severity,
-      message,
-      status = "Open",
-    } = req.body;
-
-    if (!title || !severity || !message) {
-      return res.status(400).json({
-        error: "Title, severity, and message are required",
-      });
-    }
-
-    const result = await pool.query(
-      `
-        INSERT INTO alerts (
-          title,
-          severity,
-          message,
-          status
-        )
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
-      `,
-      [title, severity, message, status]
-    );
-
+    const { title, severity, message, status = "Open" } = req.body;
+    if (!title || !severity || !message) return res.status(400).json({ error: "Title, severity, and message are required" });
+    const result = await pool.query(`INSERT INTO alerts (title, severity, message, status) VALUES ($1, $2, $3, $4) RETURNING *`, [title, severity, message, status]);
     res.status(201).json(result.rows[0]);
-  } catch (err) {
-    console.error("CREATE ALERT ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { console.error("CREATE ALERT ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.put("/alerts/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const {
-      title,
-      severity,
-      message,
-      status,
-    } = req.body;
-
-    if (!title || !severity || !message || !status) {
-      return res.status(400).json({
-        error: "Title, severity, message, and status are required",
-      });
-    }
-
-    const result = await pool.query(
-      `
-        UPDATE alerts
-        SET
-          title = $1,
-          severity = $2,
-          message = $3,
-          status = $4
-        WHERE id = $5
-        RETURNING *
-      `,
-      [title, severity, message, status, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Alert not found",
-      });
-    }
-
+    const { title, severity, message, status } = req.body;
+    if (!title || !severity || !message || !status) return res.status(400).json({ error: "Title, severity, message, and status are required" });
+    const result = await pool.query(`UPDATE alerts SET title = $1, severity = $2, message = $3, status = $4 WHERE id = $5 RETURNING *`, [title, severity, message, status, id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Alert not found" });
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error("UPDATE ALERT ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { console.error("UPDATE ALERT ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.patch("/alerts/:id/resolve", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      `
-        UPDATE alerts
-        SET status = 'Resolved'
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Alert not found",
-      });
-    }
-
+    const result = await pool.query(`UPDATE alerts SET status = 'Resolved' WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Alert not found" });
     res.json(result.rows[0]);
-  } catch (err) {
-    console.error("RESOLVE ALERT ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { console.error("RESOLVE ALERT ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 app.delete("/alerts/:id", async (req, res) => {
   try {
     const { id } = req.params;
-
-    const result = await pool.query(
-      `
-        DELETE FROM alerts
-        WHERE id = $1
-        RETURNING *
-      `,
-      [id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        error: "Alert not found",
-      });
-    }
-
-    res.json({
-      message: "Alert deleted successfully",
-      alert: result.rows[0],
-    });
-  } catch (err) {
-    console.error("DELETE ALERT ERROR:", err.message);
-    res.status(500).json({ error: err.message });
-  }
+    const result = await pool.query(`DELETE FROM alerts WHERE id = $1 RETURNING *`, [id]);
+    if (result.rows.length === 0) return res.status(404).json({ error: "Alert not found" });
+    res.json({ message: "Alert deleted successfully", alert: result.rows[0] });
+  } catch (err) { console.error("DELETE ALERT ERROR:", err.message); res.status(500).json({ error: err.message }); }
 });
 
 const PORT = process.env.PORT || 5050;
-
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, "0.0.0.0", () => { console.log(`Server running on port ${PORT}`); });
