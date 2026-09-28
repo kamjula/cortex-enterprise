@@ -8,6 +8,7 @@ const { isContextEnabled, composeCopilotRequest } = require("./copilotContext");
 const { createAuthRouter } = require("./authRoutes");
 const { requireActiveUser } = require("./authGuard");
 const { requirePermission } = require("./rbac");
+const { createUsersRouter } = require("./usersRoutes");
 
 const app = express();
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -22,6 +23,8 @@ app.use(requireActiveUser(pool));
 const canOperate = requirePermission("operate");
 const canWrite = requirePermission("write");
 const canDelete = requirePermission("delete");
+
+app.use("/users", createUsersRouter(pool));
 
 app.get("/dashboard", async (req, res) => {
   try {
