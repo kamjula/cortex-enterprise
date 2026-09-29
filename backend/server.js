@@ -9,6 +9,7 @@ const { createAuthRouter } = require("./authRoutes");
 const { requireActiveUser } = require("./authGuard");
 const { requirePermission } = require("./rbac");
 const { createUsersRouter } = require("./usersRoutes");
+const { createSettingsRouter } = require("./settingsRoutes");
 
 const app = express();
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
@@ -25,6 +26,7 @@ const canWrite = requirePermission("write");
 const canDelete = requirePermission("delete");
 
 app.use("/users", createUsersRouter(pool));
+app.use("/settings", createSettingsRouter(pool));
 
 app.get("/dashboard", async (req, res) => {
   try {
