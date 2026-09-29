@@ -1,16 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { buildApiUrl } from "../config/api";
 
 const initialSettings = {
   emailNotifications: true,
   alertNotifications: true,
   pipelineNotifications: false,
   weeklyReports: true,
-  twoFactorAuth: false,
-  sessionTimeout: "30",
-  passwordAlerts: true,
-  slackIntegration: false,
-  emailIntegration: true,
-  snowflakeIntegration: false,
   theme: "Light",
   density: "Comfortable",
   language: "English",
@@ -19,6 +14,20 @@ const initialSettings = {
 function Settings() {
   const [settings, setSettings] = useState(initialSettings);
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+    fetch(buildApiUrl("/settings")).then(async response => {
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load settings");
+      if (active) setSettings(data);
+    }).catch(err => { if (active) setError(err.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const handleToggle = (name) => {
     setSettings((current) => ({
@@ -40,17 +49,18 @@ function Settings() {
     setSaved(false);
   };
 
-  const saveSettings = () => {
-    localStorage.setItem(
-      "cortexos-settings",
-      JSON.stringify(settings)
-    );
-
-    setSaved(true);
-
-    setTimeout(() => {
-      setSaved(false);
-    }, 3000);
+  const saveSettings = async () => {
+    setSaving(true); setError(""); setSaved(false);
+    try {
+      const response = await fetch(buildApiUrl("/settings"), {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not save settings");
+      setSettings(data); setSaved(true);
+    } catch (err) { setError(err.message); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -60,20 +70,22 @@ function Settings() {
           <h2 style={styles.title}>Settings</h2>
 
           <p style={styles.subtitle}>
-            Manage notifications, security, integrations, and
-            appearance preferences.
+            Manage saved notification and appearance preferences.
           </p>
         </div>
 
         <button
           type="button"
           onClick={saveSettings}
+          disabled={loading || saving || Boolean(error && loading)}
           style={styles.saveButton}
         >
-          Save Changes
+          {saving ? "Saving..." : "Save Changes"}
         </button>
       </div>
 
+      {loading && <p>Loading your settings...</p>}
+      {error && <div role="alert" style={styles.successCard}>{error}</div>}
       {saved && (
         <div style={styles.successCard}>
           Settings saved successfully.
@@ -89,7 +101,7 @@ function Settings() {
               <h3 style={styles.cardTitle}>Notifications</h3>
 
               <p style={styles.cardDescription}>
-                Control how CortexOS sends updates and alerts.
+                Save notification preferences (delivery integrations are not configured).
               </p>
             </div>
           </div>
@@ -127,97 +139,6 @@ function Settings() {
             checked={settings.weeklyReports}
             onChange={() =>
               handleToggle("weeklyReports")
-            }
-          />
-        </section>
-
-        <section style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.icon}>🔒</div>
-
-            <div>
-              <h3 style={styles.cardTitle}>Security</h3>
-
-              <p style={styles.cardDescription}>
-                Configure account and session security.
-              </p>
-            </div>
-          </div>
-
-          <SettingToggle
-            title="Two-Factor Authentication"
-            description="Add an additional verification step."
-            checked={settings.twoFactorAuth}
-            onChange={() =>
-              handleToggle("twoFactorAuth")
-            }
-          />
-
-          <SettingToggle
-            title="Password Change Alerts"
-            description="Notify you when your password is changed."
-            checked={settings.passwordAlerts}
-            onChange={() =>
-              handleToggle("passwordAlerts")
-            }
-          />
-
-          <div style={styles.fieldGroup}>
-            <label style={styles.label}>
-              Session Timeout
-            </label>
-
-            <select
-              name="sessionTimeout"
-              value={settings.sessionTimeout}
-              onChange={handleChange}
-              style={styles.select}
-            >
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-              <option value="60">1 hour</option>
-              <option value="120">2 hours</option>
-            </select>
-          </div>
-        </section>
-
-        <section style={styles.card}>
-          <div style={styles.cardHeader}>
-            <div style={styles.icon}>🔌</div>
-
-            <div>
-              <h3 style={styles.cardTitle}>Integrations</h3>
-
-              <p style={styles.cardDescription}>
-                Connect CortexOS with external platforms.
-              </p>
-            </div>
-          </div>
-
-          <SettingToggle
-            title="Slack"
-            description="Send alerts and pipeline updates to Slack."
-            checked={settings.slackIntegration}
-            onChange={() =>
-              handleToggle("slackIntegration")
-            }
-          />
-
-          <SettingToggle
-            title="Email"
-            description="Enable outbound email notifications."
-            checked={settings.emailIntegration}
-            onChange={() =>
-              handleToggle("emailIntegration")
-            }
-          />
-
-          <SettingToggle
-            title="Snowflake"
-            description="Connect CortexOS with Snowflake."
-            checked={settings.snowflakeIntegration}
-            onChange={() =>
-              handleToggle("snowflakeIntegration")
             }
           />
         </section>
