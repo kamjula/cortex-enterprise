@@ -1,5 +1,7 @@
 # CortexOS - Data Operations Platform
 
+![CortexOS Overview](screenshots/cortexos-overview.png)
+
 CortexOS is an in-development full-stack data operations project built with React, Node.js, Express, and PostgreSQL. It demonstrates dataset management, stored pipeline-status tracking, data-quality summaries, alert management, and an AI Copilot backed by OpenAI.
 
 [Live demo](https://cortex-enterprise-sigma.vercel.app)
