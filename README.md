@@ -2,7 +2,7 @@
 
 ![CortexOS Overview](screenshots/cortexos-overview.png)
 
-CortexOS is an in-development full-stack data operations project built with React, Node.js, Express, and PostgreSQL. It demonstrates dataset management, stored pipeline-status tracking, data-quality summaries, alert management, and an AI Copilot backed by OpenAI.
+CortexOS is a full-stack data operations portfolio platform built with React, Node.js, Express, and PostgreSQL. It demonstrates authenticated dataset operations, pipeline-status monitoring, data-quality summaries, alert management, per-user settings, role-based administration, and an optional OpenAI-backed Copilot.
 
 [Live demo](https://cortex-enterprise-sigma.vercel.app)
 
@@ -32,11 +32,11 @@ CortexOS is an in-development full-stack data operations project built with Reac
 
 ![AI Copilot](screenshots/ai-copilot.png)
 
-**User Management (UI Prototype)**
+**User Management**
 
 ![User Management](screenshots/users.png)
 
-**Settings (UI Prototype)**
+**Settings**
 
 ![Settings](screenshots/settings.png)
 
@@ -47,6 +47,9 @@ CortexOS is an in-development full-stack data operations project built with Reac
 - Data-quality score and validation-metric dashboards
 - Alert create, update, resolve, and delete operations
 - AI Copilot chat backed by OpenAI, with messages persisted in PostgreSQL and a privacy-limited operational context available on request
+- JWT access/refresh authentication with active-user checks and Admin/Editor/Viewer RBAC
+- Admin User Management backed by PostgreSQL
+- Per-user Settings persistence backed by PostgreSQL/Neon
 - Docker Compose setup for PostgreSQL, backend, and frontend
 
 ## AI Copilot privacy behavior
@@ -107,7 +110,6 @@ npm run build
 
 - Pipeline trigger and retry routes only update the stored status to `Running`. They do not execute a pipeline, job, worker, or orchestration engine.
 - Displayed pipeline logs are generated from stored pipeline fields; they are not persisted execution logs.
-- Authentication and role-based access control are not implemented; API routes are open.
-- User Management and Settings remain UI prototypes.
 - Operational context is aggregate-only and disabled by default.
-- The project is not production-ready.
+- The public deployment requires correctly configured database, JWT, CORS, and optional OpenAI environment variables; repository code alone does not prove a live environment is configured.
+- AI Copilot requires a separately funded/configured OpenAI API key; without one the API returns a configuration error.
