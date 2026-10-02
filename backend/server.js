@@ -15,8 +15,19 @@ const app = express();
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 const systemPrompt = `You are CortexOS AI Copilot, a helpful enterprise data operations assistant. Answer questions clearly and concisely. Do not invent operational facts, database contents, or system access you have not been given. If the needed context is missing, say so and ask for the relevant details.`;
 
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = new Set(
+  (process.env.CORS_ORIGINS || "http://localhost:3000,http://localhost:5173")
+    .split(",").map(value => value.trim()).filter(Boolean)
+);
+app.disable("x-powered-by");
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error("Origin not allowed by CORS"));
+  },
+  credentials: false,
+}));
+app.use(express.json({ limit: "64kb" }));
 app.use("/auth", createAuthRouter(pool));
 app.get("/", (req, res) => res.send("CortexOS Backend Running"));
 app.use(requireActiveUser(pool));
