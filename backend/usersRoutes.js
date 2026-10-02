@@ -48,8 +48,9 @@ function createUsersRouter(pool) {
   });
 
   router.patch("/:id", async (req, res) => {
-    const client = await pool.connect();
+    let client;
     try {
+      client = await pool.connect();
       await client.query("BEGIN");
       const existing = await client.query("SELECT id, role, is_active FROM users WHERE id = $1 FOR UPDATE", [req.params.id]);
       if (!existing.rows[0]) { await client.query("ROLLBACK"); return res.status(404).json({ error: "User not found" }); }
@@ -57,8 +58,12 @@ function createUsersRouter(pool) {
       const current = existing.rows[0];
       const role = req.body.role ?? current.role;
       const isActive = req.body.isActive ?? current.is_active;
+      if (typeof isActive !== "boolean") {
+        await client.query("ROLLBACK");
+        return res.status(400).json({ error: "isActive must be a boolean" });
+      }
       if (!ALLOWED_ROLES.has(role)) { await client.query("ROLLBACK"); return res.status(400).json({ error: "Role must be Admin, Editor, or Viewer" }); }
-      if (req.user.id === current.id && (!isActive || role !== "Admin")) {
+      if (String(req.user.id) === String(current.id) && (!isActive || role !== "Admin")) {
         await client.query("ROLLBACK");
         return res.status(400).json({ error: "You cannot deactivate or remove your own Admin access" });
       }
@@ -72,14 +77,20 @@ function createUsersRouter(pool) {
          RETURNING id, email, role, is_active, created_at`,
         [role, Boolean(isActive), req.params.id]
       );
+      if (role !== current.role || isActive !== current.is_active) {
+        await client.query(
+          "UPDATE auth_refresh_tokens SET revoked_at = NOW() WHERE user_id = $1 AND revoked_at IS NULL",
+          [req.params.id]
+        );
+      }
       await client.query("COMMIT");
       res.json(result.rows[0]);
     } catch (error) {
-      await client.query("ROLLBACK").catch(() => {});
+      if (client) await client.query("ROLLBACK").catch(() => {});
       console.error("UPDATE USER ERROR:", error.message);
       res.status(500).json({ error: "Could not update user" });
     } finally {
-      client.release();
+      if (client) client.release();
     }
   });
 
