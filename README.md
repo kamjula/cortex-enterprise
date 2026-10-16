@@ -72,6 +72,8 @@ Requirements: Docker with Compose support.
 
 ```bash
 export POSTGRES_PASSWORD='choose-a-local-password'
+export JWT_SECRET='choose-a-long-random-access-token-secret'
+export JWT_REFRESH_SECRET='choose-a-different-long-random-refresh-secret'
 export OPENAI_API_KEY='your-key' # optional; required only for Copilot responses
 docker compose up --build
 ```
@@ -85,6 +87,27 @@ export COPILOT_CONTEXT_ENABLED=true
 ```
 
 Do not commit real passwords or API keys. To stop the stack, run `docker compose down`. Add `-v` only when you intentionally want to delete the local PostgreSQL volume.
+
+
+## Production deployment and initial Admin
+
+Configure the backend with a PostgreSQL `DATABASE_URL`, distinct strong `JWT_SECRET` and `JWT_REFRESH_SECRET`, and a comma-separated `CORS_ORIGINS` list containing the exact frontend origins (for example `https://cortex-enterprise-sigma.vercel.app`). Set `DB_SSL` as required by your database provider. Never commit these values.
+
+Run `npm run migrate` from `backend/` against the intended database to create authentication and per-user Settings tables. This migration can be repeated without dropping existing data. Other core/demo table setup commands remain separate.
+
+The first Admin must be provisioned **once** by a trusted operator in a secure environment with database access:
+
+```bash
+cd backend
+npm ci
+# Set DATABASE_URL, INITIAL_USER_EMAIL and INITIAL_USER_PASSWORD
+# privately in your environment. Password must be at least 12 characters.
+npm run create:initial-user
+```
+
+The command refuses to overwrite an existing email. Remove `INITIAL_USER_PASSWORD` from the environment immediately afterward. Do not expose credentials in tickets, screenshots, logs, or chat. A running backend or a successful build alone does not prove that initial Admin provisioning or end-to-end login succeeded.
+
+For local Docker Compose, configure `POSTGRES_PASSWORD`, `JWT_SECRET` and `JWT_REFRESH_SECRET` before `docker compose up --build`. The initialization job also creates authentication and Settings tables, but it does **not** create an Admin user automatically.
 
 ## Development commands
 

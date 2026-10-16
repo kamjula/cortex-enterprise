@@ -16,8 +16,11 @@ services:
   db-init:
     build:
       context: ./backend
-    command: ["/bin/sh", "-c", "node setupCoreTables.js && node setupAlerts.js && node setupDataQuality.js"]
+    command: ["/bin/sh", "-c", "node setupCoreTables.js && node setupAlerts.js && node setupDataQuality.js && npm run migrate"]
     environment: &backend-environment
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in your environment}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?Set JWT_REFRESH_SECRET in your environment}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
       DB_HOST: db
       DB_PORT: 5432
       DB_USER: ${POSTGRES_USER:-cortexos}

@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "test": "node --test",
     "setup:auth": "node authSchema.js",
-    "create:initial-user": "node createInitialUser.js"
+    "create:initial-user": "node createInitialUser.js",
+    "migrate": "node migrate.js"
   },
   "keywords": [],
   "author": "",

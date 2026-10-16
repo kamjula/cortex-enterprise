@@ -23,11 +23,19 @@ app.disable("x-powered-by");
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.has(origin)) return callback(null, true);
-    return callback(new Error("Origin not allowed by CORS"));
+    const error = new Error("Origin not allowed by CORS");
+    error.status = 403;
+    return callback(error);
   },
   credentials: false,
 }));
 app.use(express.json({ limit: "64kb" }));
+app.use((err, req, res, next) => {
+  if (err.status === 403 && err.message === "Origin not allowed by CORS") {
+    return res.status(403).json({ error: "Origin not allowed by CORS" });
+  }
+  next(err);
+});
 app.use("/auth", createAuthRouter(pool));
 app.get("/", (req, res) => res.send("CortexOS Backend Running"));
 app.use(requireActiveUser(pool));
