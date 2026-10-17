@@ -13,6 +13,7 @@ const { createSettingsRouter } = require("./settingsRoutes");
 
 const app = express();
 const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
+const { generateGeminiReply } = require("./geminiCopilot");
 const systemPrompt = `You are CortexOS AI Copilot, a helpful enterprise data operations assistant. Answer questions clearly and concisely. Do not invent operational facts, database contents, or system access you have not been given. If the needed context is missing, say so and ask for the relevant details.`;
 
 const allowedOrigins = new Set(
@@ -114,11 +115,12 @@ app.post("/copilot/message", canOperate, async (req, res) => {
   try {
     const { prompt } = req.body; if (typeof prompt !== "string" || !prompt.trim()) return res.status(400).json({ error: "A prompt is required." });
     const normalizedPrompt = prompt.trim(); await pool.query("INSERT INTO ai_chat (role, content) VALUES ($1, $2)", ["user", normalizedPrompt]);
-    if (!openai) return res.status(503).json({ error: "AI Copilot is not configured yet. Add OPENAI_API_KEY on the server." });
+    if (!process.env.GEMINI_API_KEY && !openai) return res.status(503).json({ error: "AI Copilot is not configured yet. Add GEMINI_API_KEY or OPENAI_API_KEY on the server." });
     const composed = await composeCopilotRequest({ pool, prompt: normalizedPrompt, systemPrompt, contextEnabled: isContextEnabled() });
     if (!composed.ok) { console.error("COPILOT CONTEXT ERROR:", composed.error); return res.status(503).json({ error: composed.error }); }
-    const completion = await openai.chat.completions.create({ model: process.env.OPENAI_MODEL || "gpt-4o-mini", messages: composed.messages, temperature: 0.2, max_tokens: 250 });
-    const assistantReply = completion.choices?.[0]?.message?.content?.trim() || "I couldn't generate a response right now.";
+    const assistantReply = process.env.GEMINI_API_KEY
+      ? await generateGeminiReply(composed.messages)
+      : (await openai.chat.completions.create({ model: process.env.OPENAI_MODEL || "gpt-4o-mini", messages: composed.messages, temperature: 0.2, max_tokens: 250 })).choices?.[0]?.message?.content?.trim() || "I couldn't generate a response right now.";
     await pool.query("INSERT INTO ai_chat (role, content) VALUES ($1, $2)", ["assistant", assistantReply]); res.json({ reply: assistantReply });
   } catch (err) { console.error("COPILOT MESSAGE ERROR:", err.message); res.status(500).json({ error: "Unable to process your request right now." }); }
 });
