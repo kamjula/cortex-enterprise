@@ -1,4 +1,4 @@
-# CortexOS - Data Operations Platform
+# CortexOS — Enterprise Data Operations Platform
 
 ![CortexOS Overview](screenshots/cortexos-overview.png)
 
@@ -40,7 +40,7 @@ CortexOS is a full-stack data operations portfolio platform built with React, No
 
 ![Settings](screenshots/settings.png)
 
-## Implemented features
+## Implemented Features
 
 - Dataset create, read, update, and delete operations backed by PostgreSQL
 - Pipeline status display plus trigger/retry controls
@@ -52,7 +52,7 @@ CortexOS is a full-stack data operations portfolio platform built with React, No
 - Per-user Settings persistence backed by PostgreSQL/Neon
 - Docker Compose setup for PostgreSQL, backend, and frontend
 
-## AI Copilot privacy behavior
+## AI Copilot & Data Privacy
 
 The Copilot works without operational context by default. Set `COPILOT_CONTEXT_ENABLED=true` only when you intentionally want to include a read-only aggregate snapshot in an OpenAI request.
 
@@ -129,7 +129,7 @@ npm run lint
 npm run build
 ```
 
-## Important limitations
+## Scope & Limitations
 
 - Pipeline trigger and retry routes only update the stored status to `Running`. They do not execute a pipeline, job, worker, or orchestration engine.
 - Displayed pipeline logs are generated from stored pipeline fields; they are not persisted execution logs.
