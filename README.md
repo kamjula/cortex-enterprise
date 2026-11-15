@@ -6,7 +6,7 @@ CortexOS is a full-stack data operations portfolio platform built with React, No
 
 [Hosted frontend — authentication required](https://cortex-enterprise-sigma.vercel.app)
 
-> **Recruiter note:** CortexOS does not currently expose a public read-only demo. The hosted frontend requires authentication; use the screenshots and source code below to evaluate the implementation.
+> **Demo access:** CortexOS does not currently expose a public read-only demo. The hosted frontend requires authentication; use the screenshots and source code below to evaluate the implementation.
 
 ## Screenshots
 
@@ -138,3 +138,12 @@ npm run build
 - Operational context is aggregate-only and disabled by default.
 - The public deployment requires correctly configured database, JWT, CORS, and optional OpenAI environment variables; repository code alone does not prove a live environment is configured.
 - AI Copilot requires a separately funded/configured OpenAI API key; without one the API returns a configuration error.
+
+## Stack
+
+React · Vite · Node.js · Express · PostgreSQL · JWT · OpenAI API · Docker Compose
+
+## Author
+
+**Sravani Kamjula** · AI/ML Engineer  
+[LinkedIn](https://www.linkedin.com/in/sravani-kamjula/) · [Portfolio](https://sravaniportfoli.netlify.app/) · [GitHub](https://github.com/kamjula)
