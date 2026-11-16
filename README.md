@@ -1,10 +1,10 @@
-# CortexOS — Enterprise Data Operations Platform
+# CortexOS: Enterprise Data Operations Platform
 
 ![CortexOS Overview](screenshots/cortexos-overview.png)
 
-CortexOS is a full-stack data operations portfolio platform built with React, Node.js, Express, and PostgreSQL. It demonstrates authenticated dataset operations, pipeline-status monitoring, data-quality summaries, alert management, per-user settings, role-based administration, and an optional OpenAI-backed Copilot.
+CortexOS is a full-stack data operations platform built with React, Node.js, Express, and PostgreSQL. It covers authenticated dataset operations, pipeline-status monitoring, data-quality summaries, alert management, per-user settings, role-based administration, and an optional OpenAI-backed Copilot.
 
-[Hosted frontend — authentication required](https://cortex-enterprise-sigma.vercel.app)
+[Hosted frontend (sign-in required)](https://cortex-enterprise-sigma.vercel.app)
 
 > **Demo access:** CortexOS does not currently expose a public read-only demo. The hosted frontend requires authentication; use the screenshots and source code below to evaluate the implementation.
 
